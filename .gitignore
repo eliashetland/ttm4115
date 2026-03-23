@@ -1,0 +1,3 @@
+drone/fsm/*.ipynb
+__pycache__/
+*.pyc
