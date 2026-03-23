@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch index.ts",
+    "build": "tsc",
     "start": "tsc && node dist/index.js"
   },
   "author": "",
