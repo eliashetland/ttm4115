@@ -1,6 +1,9 @@
-version: "3.9"
-
 services:
+  drone:
+    build: ./drone
+    volumes:
+      - ./drone:/workspace
+
   backend:
     build: ./backend
     ports:
