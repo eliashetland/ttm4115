@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { createDrone, getAllDrones, getDroneById } from "../controllers/droneController.js";
+import { createDrone, getDrone, getDroneById } from "../controllers/droneController.js";
 
 const droneRouter = Router();
 
 droneRouter.get("/", (req, res) => {
 
-    const drones = getAllDrones();
+    const drones = getDrone();
     res.json(drones);
 });
 

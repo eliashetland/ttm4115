@@ -2,7 +2,7 @@ import { drones } from "../db/db.js"
 import type { IDrone, IDroneInsert } from "../models/droneModel.js";
 
 
-export const getAllDrones = () => {
+export const getDrone = () => {
     return drones;
 };
 
