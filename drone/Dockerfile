@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["sleep", "infinity"]
+CMD ["python", "fsm/test_fsms.py"]

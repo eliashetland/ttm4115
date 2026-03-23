@@ -2,14 +2,14 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from stmpy import Driver
 
-from drone.fsm.delivery_status_fsm import DeliveryStatus, create_machine as create_delivery_status_machine
-from drone.fsm.drone_selection_fsm import DroneSelection, create_machine as create_drone_selection_machine
-from drone.fsm.drone_status_fsm import DroneStatus, create_machine as create_drone_status_machine
-from drone.fsm.general_drone_fsm import GeneralDrone, create_machine as create_general_drone_machine
+from fsm.delivery_status_fsm import DeliveryStatus, create_machine as create_delivery_status_machine
+from fsm.drone_selection_fsm import DroneSelection, create_machine as create_drone_selection_machine
+from fsm.drone_status_fsm import DroneStatus, create_machine as create_drone_status_machine
+from fsm.general_drone_fsm import GeneralDrone, create_machine as create_general_drone_machine
 
 
 PAUSE = 0.05
