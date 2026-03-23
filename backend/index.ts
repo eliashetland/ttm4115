@@ -4,6 +4,7 @@ import exampleRouter from './src/routers/exampleRouter.js';
 import exampleMiddleware from './src/middlewares/exampleMiddleware.js';
 import cors from 'cors';
 import dronePositionRouter from './src/routers/dronePositionRouter.js';
+import droneRouter from './src/routers/droneRouter.js';
 
 const app = express()
 app.use(cors({
@@ -19,6 +20,7 @@ app.get('/health', (req, res) => {
 app.use(exampleMiddleware);
 
 app.use('/api/example', exampleRouter);
+app.use('/api/drone', droneRouter);
 app.use('/api/drone-position', dronePositionRouter);
 
 app.listen(3000);

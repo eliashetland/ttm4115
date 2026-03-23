@@ -1,29 +1,21 @@
-import type { IDronePosition } from "../models/dronePositionModel.js";
-
-const dronePositions: { [key: number]: IDronePosition } = {
-    1: {
-        droneId: 1,
-        latitude: 37.7749,
-        longitude: -122.4194,
-        altitude: 100,
-        timestamp: new Date().toISOString()
-    },
-    2: {
-        droneId: 2,
-        latitude: 34.0522,
-        longitude: -118.2437,
-        altitude: 150,
-        timestamp: new Date().toISOString()
-    },
-    3: {
-        droneId: 3,
-        latitude: 40.7128,
-        longitude: -74.0060,
-        altitude: 200,
-        timestamp: new Date().toISOString()
-    }
-};
+import { drones } from "../db/db.js";
+import type { IDronePositionInsert } from "../models/dronePositionModel.js";
 
 export const getDronePositionById = (droneId: number) => {
-    return dronePositions[droneId] || null;
-}
+    const position = drones.find(drone => drone.droneId === droneId)?.position;
+
+    return position || null;
+};
+
+export const updateDronePosition = (droneId: number, position: IDronePositionInsert) => {
+    const droneIndex = drones.findIndex(drone => drone.droneId === droneId);
+
+    if (droneIndex === -1) {
+        return null;
+    }
+
+    const updatedPosition = { ...position, timestamp: new Date().toISOString() };
+
+    drones[droneIndex]!.position = updatedPosition;
+    return updatedPosition;
+};

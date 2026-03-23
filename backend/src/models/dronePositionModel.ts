@@ -1,8 +1,9 @@
 
 export interface IDronePosition {
-    droneId: number;
     latitude: number;
     longitude: number;
     altitude: number;
     timestamp: string;
 }
+
+export interface IDronePositionInsert extends Omit<IDronePosition, "timestamp"> { }
