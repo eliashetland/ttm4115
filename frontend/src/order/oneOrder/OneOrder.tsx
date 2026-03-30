@@ -3,6 +3,7 @@ import { ApiClient } from "../../api/ApiClient";
 import type { IOrder } from "../../api/models/IOrder";
 import { useParams } from "react-router-dom";
 import styles from "./OneOrder.module.css";
+import { TrackingHistory } from "./trackingHistory/TrackingHistory";
 
 export const OneOrder = () => {
   const { orderId } = useParams();
@@ -24,6 +25,11 @@ export const OneOrder = () => {
       <h1>Order Details</h1>
 
       <div className={styles.blocks}>
+        <section className={`${styles.section} ${styles.history}`}>
+          <h2 className={styles.header}>History</h2>
+          <TrackingHistory orders={order.history} />
+        </section>
+
         <section className={`${styles.section} ${styles.size}`}>
           <h2 className={styles.header}>Size</h2>
           <label className={styles.label} htmlFor="dimensions">

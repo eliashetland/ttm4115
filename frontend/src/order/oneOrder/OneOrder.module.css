@@ -22,7 +22,6 @@
 }
 
 .size .header {
-
   grid-column: span 2;
 }
 
@@ -46,4 +45,11 @@
   background: #20222a;
   padding: 20px;
   border-radius: 12px;
+}
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
 }

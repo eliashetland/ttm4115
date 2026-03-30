@@ -10,9 +10,18 @@ export interface IOrder {
     width: number;
     height: number;
     weight: number;
+    history: IOrderHistory[];
 }
 
-export interface IOrderInsert extends Omit<IOrder, "id"> { }
+export interface IOrderHistory {
+    createdAt: string;
+    status: string;
+    message: string;
+    location: string;
+}
+
+
+export interface IOrderInsert extends Omit<IOrder, "id" | "history"> { }
 
 export function createEmptyOrder(): IOrderInsert {
     return {

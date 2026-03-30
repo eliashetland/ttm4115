@@ -10,6 +10,15 @@ export interface IOrder {
     width: number;
     height: number;
     weight: number;
+    history: IOrderHistory[];
 }
 
-export interface IOrderInsert extends Omit<IOrder, "id"> { }
+
+interface IOrderHistory {
+    createdAt: Date;
+    status: string;
+    location: string;
+    message: string;
+}
+
+export interface IOrderInsert extends Omit<IOrder, "id" | "history"> { }

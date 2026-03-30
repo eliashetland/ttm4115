@@ -8,6 +8,16 @@ export const createOrder = (order: IOrderInsert) => {
 
     const newOrder: IOrder = {
         id: orders.length > 0 ? orders[orders.length - 1]!.id + 1 : 1, //TODO: Assumes orders never deleted, so should be fixed
+
+        history: [
+            {
+                createdAt: new Date(),
+                status: "Created",
+                location: "Warehouse",
+                message: "Order created and ready for processing"
+            },
+        ],
+
         ...order
     };
 

@@ -1,0 +1,16 @@
+.historyItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+p {
+  font-size: small;
+}
+
+h3 {
+  margin: 0;
+  font-weight: 400;
+  color: #ececec;
+  font-size: medium;
+}

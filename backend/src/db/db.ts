@@ -46,7 +46,6 @@ export const orders: IOrder[] = [
     {
         id: 1,
         sender: "Kitchn As",
-
         firstName: "John",
         lastName: "Doe",
         address: "123 Main St",
@@ -56,5 +55,13 @@ export const orders: IOrder[] = [
         width: 5,
         height: 2,
         weight: 1.5,
+        history: [
+            {
+                createdAt: new Date(),
+                status: "Created",
+                message: "Order has been created and is being processed",
+                location: "Warehouse"
+            }
+        ]
     }
 ];
