@@ -3,6 +3,7 @@ import App from "./App";
 import { Example } from "./example/Example";
 import { Drone } from "./drone/Drone";
 import { AllDrones } from "./drone/AllDrones";
+import { CreateOrder } from "./order/CreateOrder";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,10 @@ export const router = createBrowserRouter([
   {
     path: "/drone/:droneId",
     element: <Drone />,
+  },
+  {
+    path: "/create-order",
+    element: <CreateOrder />,
   },
   {
     path: "/example",
