@@ -42,4 +42,9 @@ const validateOrderData = (order: IOrderInsert) => {
     if (typeof order.weight !== "number" || order.weight <= 0) {
         throw new Error("Invalid order weight");
     }
+
+    if (!order.sender) {
+        throw new Error("Missing sender information");
+
+    }
 };
