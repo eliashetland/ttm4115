@@ -1,45 +1,60 @@
 import { useState } from "react";
 import styles from "./CreateOrder.module.css";
-import type { IOrder } from "../api/models/IOrder";
+import { createEmptyOrder, type IOrderInsert } from "../api/models/IOrder";
+import { ApiClient } from "../api/ApiClient";
+import { AllOrders } from "./allOrders/AllOrders";
 export const CreateOrder = () => {
+  const [formData, setFormData] = useState<IOrderInsert>(createEmptyOrder());
 
-    const [formData, setFormData] = useState<IOrder>({
-        firstName: "",
-        lastName: "",
-        address: "",
-        zip: "",
-        city: "",
-        length: 0,
-        width: 0,
-        height: 0
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
-    }
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: Number(value),
+    }));
+  };
 
-    const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: Number(value),
-        }));
-    }
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log(formData);
-    }
+    ApiClient.post("/order", ["order"], formData)
+      .then((createdOrder) => {
+        console.log("Created order", createdOrder);
+        setFormData(createEmptyOrder());
+      })
+      .catch((err) => {
+        alert("Failed to create order");
+        console.error("Failed to create order", err);
+      });
+    console.log(formData);
+  };
 
   return (
     <div className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <section className={styles.name}>
-          <h2>Name</h2>
+          <h2>Sender</h2>
+          <label htmlFor="sender">Sender</label>
+          <input
+            type="text"
+            name="sender"
+            id="sender"
+            placeholder="Enter sender name"
+            value={formData.sender}
+            onChange={handleChange}
+          />
+        </section>
+
+        <section className={styles.name}>
+          <h2>Receiver</h2>
           <label htmlFor="firstName">First Name</label>
           <input
             type="text"
@@ -124,10 +139,22 @@ export const CreateOrder = () => {
             value={formData.height}
             onChange={handleNumberChange}
           />
+
+          <label htmlFor="weight">Weight (kg)</label>
+          <input
+            type="number"
+            name="weight"
+            id="weight"
+            placeholder="Enter weight"
+            value={formData.weight}
+            onChange={handleNumberChange}
+          />
         </section>
 
         <button type="submit">Create order</button>
       </form>
+
+      <AllOrders />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import type { IDrone } from "../models/droneModel.js";
+import type { IOrder } from "../models/orderModel.js";
 
 
 export const drones: IDrone[] = [
@@ -40,3 +41,20 @@ export const drones: IDrone[] = [
     }
 ]
 
+
+export const orders: IOrder[] = [
+    {
+        id: 1,
+        sender: "Kitchn As",
+
+        firstName: "John",
+        lastName: "Doe",
+        address: "123 Main St",
+        zip: "12345",
+        city: "Anytown",
+        length: 10,
+        width: 5,
+        height: 2,
+        weight: 1.5,
+    }
+];
