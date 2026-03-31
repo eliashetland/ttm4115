@@ -10,11 +10,16 @@ export const TrackingHistory = ({ orders }: ITrackingHistoryProps) => {
     <div>
       {orders.map((order, index) => (
         <div key={index} className={styles.historyItem}>
-          <h3>{order.message}</h3>
-          <p>
-            {DateUtils.format(order.createdAt, "EEEE d  MMMM HH:mm")} -{" "}
-            {order.location}
-          </p>
+          <div className={styles.line}>
+            <div className={styles.dot} />
+          </div>
+          <div>
+            <h3>{order.message}</h3>
+            <p>
+              {DateUtils.format(order.createdAt, "EEEE d  MMMM HH:mm")} -{" "}
+              {order.location}
+            </p>
+          </div>
         </div>
       ))}
     </div>

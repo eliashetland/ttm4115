@@ -62,6 +62,21 @@ export const orders: IOrder[] = [
                 message: "Order has been created and is being processed",
                 location: "Warehouse"
             }
+            ,
+            {
+                createdAt: new Date(new Date().getTime() + 1000 * 60 * 60), // 1 hour later
+                status: "In Transit",
+                message: "Order is in transit to the destination",
+                location: "On the way"
+            },
+            {
+                createdAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 2), // 2 hours later
+                status: "Delivered",
+                message: "Order has been delivered to the recipient",
+                location: "Recipient's address"
+            }
+
+
         ]
     }
 ];
