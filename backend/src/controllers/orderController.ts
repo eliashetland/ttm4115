@@ -1,5 +1,5 @@
 import { orders } from "../db/db.js";
-import type { IOrder, IOrderInsert } from "../models/orderModel.js";
+import type { IOrder, IOrderHistory, IOrderInsert } from "../models/orderModel.js";
 
 
 export const createOrder = (order: IOrderInsert) => {
@@ -35,6 +35,34 @@ export const getOrderById = (orderId: number) => {
     const order = orders.find(order => order.id === orderId);
     return order || null;
 }
+
+export const updateOrderStatus = (orderId: number, status: string, location: string, message: string) => {
+    const order = orders.find(order => order.id === orderId);
+
+    validateUpdateOrderStatusData(status, location, message);
+
+    if (!order) {
+        throw new Error("Order not found");
+    }
+    const newHistoryEntry: IOrderHistory = {
+        createdAt: new Date(),
+        status,
+        location,
+        message
+    };
+    order.history.unshift(newHistoryEntry);
+    return order;
+}
+
+
+const validateUpdateOrderStatusData = (status: string, location: string, message: string) => {
+    if (!status || !location || !message) {
+        throw new Error("Status, location, and message are required");
+    }
+    if (location.trim() === "" || message.trim() === "" || status.trim() === "") {
+        throw new Error("Location, message, and status cannot be empty");
+    }
+};
 
 
 const validateOrderData = (order: IOrderInsert) => {

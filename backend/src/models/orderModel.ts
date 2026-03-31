@@ -14,7 +14,7 @@ export interface IOrder {
 }
 
 
-interface IOrderHistory {
+export interface IOrderHistory {
     createdAt: Date;
     status: string;
     location: string;
