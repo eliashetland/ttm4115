@@ -1,0 +1,49 @@
+.historyItem {
+  display: flex;
+  gap: 1rem;
+}
+
+p {
+  font-size: small;
+}
+
+h3 {
+  margin: 0;
+  font-weight: 400;
+  color: #ececec;
+  font-size: medium;
+}
+
+.line {
+  width: 2px;
+  background-color: #ececec;
+  display: flex;
+  position: relative;
+  box-sizing: border-box;
+  top: 7px;
+  flex-shrink: 0;
+}
+
+.dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #ececec;
+  border-radius: 50%;
+  left: -3px;
+}
+
+
+.historyItem:first-child .dot {
+  width: 12px;
+  height: 12px;
+  left: -5px;  
+}
+
+.historyItem:last-child .line {
+  background-color: transparent; 
+}
+
+.line:last-child {
+  display: none;
+}

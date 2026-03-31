@@ -1,4 +1,5 @@
 import type { IDrone } from "../models/droneModel.js";
+import type { IOrder } from "../models/orderModel.js";
 
 
 export const drones: IDrone[] = [
@@ -40,3 +41,42 @@ export const drones: IDrone[] = [
     }
 ]
 
+
+export const orders: IOrder[] = [
+    {
+        id: 1,
+        sender: "Kitchn As",
+        firstName: "John",
+        lastName: "Doe",
+        address: "123 Main St",
+        zip: "12345",
+        city: "Anytown",
+        length: 10,
+        width: 5,
+        height: 2,
+        weight: 1.5,
+        history: [
+            {
+                createdAt: new Date(),
+                status: "Created",
+                message: "Order has been created and is being processed",
+                location: "Warehouse"
+            }
+            ,
+            {
+                createdAt: new Date(new Date().getTime() + 1000 * 60 * 60), // 1 hour later
+                status: "In Transit",
+                message: "Order is in transit to the destination",
+                location: "On the way"
+            },
+            {
+                createdAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 2), // 2 hours later
+                status: "Delivered",
+                message: "Order has been delivered to the recipient",
+                location: "Recipient's address"
+            }
+
+
+        ]
+    }
+];
