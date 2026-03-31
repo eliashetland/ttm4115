@@ -38,6 +38,9 @@ export const getOrderById = (orderId: number) => {
 
 export const updateOrderStatus = (orderId: number, status: string, location: string, message: string) => {
     const order = orders.find(order => order.id === orderId);
+
+    validateUpdateOrderStatusData(status, location, message);
+
     if (!order) {
         throw new Error("Order not found");
     }
@@ -50,6 +53,16 @@ export const updateOrderStatus = (orderId: number, status: string, location: str
     order.history.unshift(newHistoryEntry);
     return order;
 }
+
+
+const validateUpdateOrderStatusData = (status: string, location: string, message: string) => {
+    if (!status || !location || !message) {
+        throw new Error("Status, location, and message are required");
+    }
+    if (location.trim() === "" || message.trim() === "" || status.trim() === "") {
+        throw new Error("Location, message, and status cannot be empty");
+    }
+};
 
 
 const validateOrderData = (order: IOrderInsert) => {

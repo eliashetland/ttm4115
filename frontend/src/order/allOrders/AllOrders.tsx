@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ApiClient } from "../../api/ApiClient";
 import type { IOrder } from "../../api/models/IOrder";
 import styles from "./AllOrders.module.css";
+import { DateUtils } from "../../utils/DateUtils";
 
 export const AllOrders = () => {
   const { data: orders } = useQuery({
@@ -21,6 +22,8 @@ export const AllOrders = () => {
           <th>City</th>
           <th>Size(cm)</th>
           <th>Weight(kg)</th>
+          <th>Status</th>
+          <th>Last update</th>
         </tr>
       </thead>
       <tbody>
@@ -38,6 +41,10 @@ export const AllOrders = () => {
               {order.length}x{order.width}x{order.height}
             </td>
             <td>{order.weight}</td>
+            <td>{order.history[0].status}</td>
+            <td>
+              {DateUtils.format(order.history[0].createdAt, "yyyy-MM-dd HH:mm:ss")}
+            </td>
           </tr>
         ))}
       </tbody>
