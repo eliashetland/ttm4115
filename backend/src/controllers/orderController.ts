@@ -1,5 +1,5 @@
 import { orders } from "../db/db.js";
-import type { IOrder, IOrderInsert } from "../models/orderModel.js";
+import type { IOrder, IOrderHistory, IOrderInsert } from "../models/orderModel.js";
 
 
 export const createOrder = (order: IOrderInsert) => {
@@ -34,6 +34,21 @@ export const getAllOrders = () => {
 export const getOrderById = (orderId: number) => {
     const order = orders.find(order => order.id === orderId);
     return order || null;
+}
+
+export const updateOrderStatus = (orderId: number, status: string, location: string, message: string) => {
+    const order = orders.find(order => order.id === orderId);
+    if (!order) {
+        throw new Error("Order not found");
+    }
+    const newHistoryEntry: IOrderHistory = {
+        createdAt: new Date(),
+        status,
+        location,
+        message
+    };
+    order.history.unshift(newHistoryEntry);
+    return order;
 }
 
 
