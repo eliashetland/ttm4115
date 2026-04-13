@@ -1,1 +1,17 @@
 # ttm4115
+
+
+## run frontend
+```bash
+cd frontend
+npm i
+npm run dev
+```
+
+
+## run backend
+```bash
+cd frontend
+npm i
+npm run dev
+```
