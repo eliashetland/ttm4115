@@ -4,6 +4,7 @@ import type { IOrder } from "../../api/models/IOrder";
 import { useParams } from "react-router-dom";
 import styles from "./OneOrder.module.css";
 import { TrackingHistory } from "./trackingHistory/TrackingHistory";
+import { DroneRoute } from "./map/DroneRoute";
 
 export const OneOrder = () => {
   const { orderId } = useParams();
@@ -28,6 +29,32 @@ export const OneOrder = () => {
         <section className={`${styles.section} ${styles.history}`}>
           <h2 className={styles.header}>History</h2>
           <TrackingHistory orders={order.history} />
+        </section>
+
+        <section className={`${styles.section} ${styles.map}`}>
+          <h2 className={styles.header}>Drone Route</h2>
+          <DroneRoute
+            positions={[
+              {
+                latitude: 63.415808,
+                longitude: 10.406744,
+                timestamp: new Date().toISOString(),
+              },
+
+              {
+                latitude: 63.404284,
+                longitude: 10.405027,
+                timestamp: new Date().toISOString(),
+              },
+
+              {
+                latitude: 63.394284,
+                longitude: 10.419027,
+                timestamp: new Date().toISOString(),
+              },
+              
+            ]}
+          />
         </section>
 
         <section className={`${styles.section} ${styles.size}`}>
