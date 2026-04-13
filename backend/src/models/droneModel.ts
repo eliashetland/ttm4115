@@ -5,7 +5,10 @@ export interface IDrone {
     name: string;
     model: string;
     manufacturer: string;
+    batteryLevel: number;
     position: IDronePosition;
 }
 
-export interface IDroneInsert extends Omit<IDrone, "droneId"> { }
+export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel"> {
+    batteryLevel?: number;
+}
