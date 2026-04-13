@@ -1,3 +1,4 @@
 drone/fsm/*.ipynb
 __pycache__/
 *.pyc
+/package-lock.json
