@@ -11,14 +11,22 @@ export interface IOrder {
     height: number;
     weight: number;
     history: IOrderHistory[];
+    target: IOrderLocation;
 }
 
 
 export interface IOrderHistory {
     createdAt: Date;
     status: string;
-    location: string;
+    type: "status" | "drone";
+    location: IOrderLocation;
     message: string;
+}
+
+export interface IOrderLocation {
+    latitude: number;
+    longitude: number;
+    description: string;
 }
 
 export interface IOrderInsert extends Omit<IOrder, "id" | "history"> { }

@@ -22,10 +22,28 @@ export const CreateOrder = () => {
     }));
   };
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    ApiClient.post("/order", ["order"], formData)
+    const address = `${formData.address}, ${formData.zip} ${formData.city}`;
+
+    const res = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${import.meta.env.VITE_MAPBOX_API_KEY}`,
+    );
+
+    const data = await res.json();
+
+    if (!data.features?.length) {
+      alert("No location found");
+      return;
+    }
+
+    const [lng, lat] = data.features[0].center;
+
+    ApiClient.post("/order", ["order"], {
+      ...formData,
+      target: { latitude: lat, longitude: lng, description: address },
+    })
       .then((createdOrder) => {
         console.log("Created order", createdOrder);
         setFormData(createEmptyOrder());
@@ -34,7 +52,6 @@ export const CreateOrder = () => {
         alert("Failed to create order");
         console.error("Failed to create order", err);
       });
-    console.log(formData);
   };
 
   return (
