@@ -34,26 +34,7 @@ export const OneOrder = () => {
         <section className={`${styles.section} ${styles.map}`}>
           <h2 className={styles.header}>Drone Route</h2>
           <DroneRoute
-            positions={[
-              {
-                latitude: 63.415808,
-                longitude: 10.406744,
-                timestamp: new Date().toISOString(),
-              },
-
-              {
-                latitude: 63.404284,
-                longitude: 10.405027,
-                timestamp: new Date().toISOString(),
-              },
-
-              {
-                latitude: 63.394284,
-                longitude: 10.419027,
-                timestamp: new Date().toISOString(),
-              },
-              
-            ]}
+            orderHistory={order.history}
           />
         </section>
 

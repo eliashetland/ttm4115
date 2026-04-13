@@ -1,26 +1,29 @@
 // import styles from './DroneRoute.module.css';
 import Map, { Layer, Source } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
+import type { IOrderHistory } from "../../../api/models/IOrder";
 interface IDroneRouteProps {
-  positions: {
-    longitude: number;
-    latitude: number;
-    timestamp: string;
-  }[];
+  orderHistory: IOrderHistory[];
 }
 
 export const DroneRoute = (props: IDroneRouteProps) => {
+  const position = props.orderHistory.map((history) => ({
+    latitude: history.location.latitude,
+    longitude: history.location.longitude,
+    timestamp: history.createdAt,
+  }));
+
   const lineGeoJSON = {
     type: "Feature",
     geometry: {
       type: "LineString",
-      coordinates: props.positions.map((p) => [p.longitude, p.latitude]),
+      coordinates: position.map((p) => [p.longitude, p.latitude]),
     },
   };
 
   const pointsGeoJSON = {
     type: "FeatureCollection",
-    features: props.positions.map((p) => ({
+    features: position.map((p) => ({
       type: "Feature",
       geometry: {
         type: "Point",
@@ -29,7 +32,7 @@ export const DroneRoute = (props: IDroneRouteProps) => {
     })),
   };
 
-  const lastPosition = props.positions[props.positions.length - 1];
+  const lastPosition = position[props.orderHistory.length - 1];
   const dronePoint = {
     type: "Feature",
     geometry: {

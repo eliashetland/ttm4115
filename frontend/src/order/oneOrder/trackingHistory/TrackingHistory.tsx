@@ -6,9 +6,12 @@ interface ITrackingHistoryProps {
   orders: IOrderHistory[];
 }
 export const TrackingHistory = ({ orders }: ITrackingHistoryProps) => {
+
+  const ordersFiltered = orders.filter((order) => order.type === "status");
+
   return (
     <div>
-      {orders.map((order, index) => (
+      {ordersFiltered.map((order, index) => (
         <div key={index} className={styles.historyItem}>
           <div className={styles.line}>
             <div className={styles.dot} />
@@ -17,7 +20,7 @@ export const TrackingHistory = ({ orders }: ITrackingHistoryProps) => {
             <h3>{order.message}</h3>
             <p>
               {DateUtils.format(order.createdAt, "EEEE d  MMMM HH:mm")} -{" "}
-              {order.location}
+              {order.location.description}
             </p>
           </div>
         </div>

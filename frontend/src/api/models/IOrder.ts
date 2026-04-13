@@ -17,8 +17,16 @@ export interface IOrderHistory {
     createdAt: string;
     status: string;
     message: string;
-    location: string;
+    type: "status" | "drone";
+    location: IOrderLocation;
 }
+
+export interface IOrderLocation {
+    latitude: number;
+    longitude: number;
+    description: string;
+}
+
 
 
 export interface IOrderInsert extends Omit<IOrder, "id" | "history"> { }
