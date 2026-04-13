@@ -11,6 +11,7 @@ export interface IOrder {
     height: number;
     weight: number;
     history: IOrderHistory[];
+    target: IOrderLocation;
 }
 
 

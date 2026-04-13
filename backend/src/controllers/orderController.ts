@@ -27,6 +27,8 @@ export const createOrder = (order: IOrderInsert) => {
     };
 
     orders.push(newOrder);
+    console.log(orders);
+    
     return newOrder;
 };
 
@@ -68,7 +70,7 @@ const validateUpdateOrderStatusData = (status: string, location: IOrderLocation,
     if (location.description.trim() === "" || message.trim() === "" || status.trim() === "") {
         throw new Error("Location, message, and status cannot be empty");
     }
-    if(typeof location.latitude !== "number" || typeof location.longitude !== "number") {
+    if (typeof location.latitude !== "number" || typeof location.longitude !== "number") {
         throw new Error("Invalid location coordinates");
     }
 };

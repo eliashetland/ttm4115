@@ -1,9 +1,10 @@
 // import styles from './DroneRoute.module.css';
 import Map, { Layer, Source } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { IOrderHistory } from "../../../api/models/IOrder";
+import type { IOrderHistory, IOrderLocation } from "../../../api/models/IOrder";
 interface IDroneRouteProps {
   orderHistory: IOrderHistory[];
+  target: IOrderLocation;
 }
 
 export const DroneRoute = (props: IDroneRouteProps) => {
@@ -38,6 +39,16 @@ export const DroneRoute = (props: IDroneRouteProps) => {
     geometry: {
       type: "Point",
       coordinates: [lastPosition.longitude, lastPosition.latitude],
+    },
+  };
+
+  console.log(props.target);
+  
+  const targetPoint = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: [props.target.longitude, props.target.latitude],
     },
   };
 
@@ -81,6 +92,17 @@ export const DroneRoute = (props: IDroneRouteProps) => {
           paint={{
             "circle-radius": 10,
             "circle-color": "#0000ff",
+          }}
+        />
+      </Source>
+
+      <Source id="target" type="geojson" data={targetPoint as any}>
+        <Layer
+          id="target-layer"
+          type="circle"
+          paint={{
+            "circle-radius": 10,
+            "circle-color": "#00ff00",
           }}
         />
       </Source>

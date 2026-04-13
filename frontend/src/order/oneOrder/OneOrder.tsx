@@ -35,6 +35,7 @@ export const OneOrder = () => {
           <h2 className={styles.header}>Drone Route</h2>
           <DroneRoute
             orderHistory={order.history}
+            target={order.target}
           />
         </section>
 

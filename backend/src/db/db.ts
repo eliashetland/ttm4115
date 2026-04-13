@@ -73,6 +73,11 @@ export const orders: IOrder[] = [
         width: 5,
         height: 2,
         weight: 1.5,
+        target: {
+            latitude: 63.394284,
+            longitude: 10.419027,
+            description: "Recipient's address"
+        },
         history: [
             {
                 createdAt: new Date(),
