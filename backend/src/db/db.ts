@@ -8,6 +8,7 @@ export const drones: IDrone[] = [
         name: "Drone 1",
         model: "Model A",
         manufacturer: "Manufacturer X",
+        batteryLevel: 100,
         position: {
             latitude: 37.7749,
             longitude: -122.4194,
@@ -20,6 +21,7 @@ export const drones: IDrone[] = [
         name: "Drone 2",
         model: "Model B",
         manufacturer: "Manufacturer Y",
+        batteryLevel: 70,
         position: {
             latitude: 34.0522,
             longitude: -118.2437,
@@ -32,6 +34,7 @@ export const drones: IDrone[] = [
         name: "Drone 3",
         model: "Model C",
         manufacturer: "Manufacturer Z",
+        batteryLevel: 30,
         position: {
             latitude: 40.7128,
             longitude: -74.0060,
