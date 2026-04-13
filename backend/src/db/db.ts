@@ -14,6 +14,12 @@ export const drones: IDrone[] = [
             longitude: -122.4194,
             altitude: 100,
             timestamp: new Date().toISOString(),
+        },
+        maxCapacity: {
+            length: 100,
+            width: 100,
+            height: 100,
+            weight: 10
         }
     },
     {
@@ -27,6 +33,12 @@ export const drones: IDrone[] = [
             longitude: -118.2437,
             altitude: 150,
             timestamp: new Date().toISOString(),
+        },
+         maxCapacity: { //cm
+            length: 50,
+            width: 50,
+            height: 300,
+            weight: 15
         }
     },
     {
@@ -40,6 +52,12 @@ export const drones: IDrone[] = [
             longitude: -74.0060,
             altitude: 200,
             timestamp: new Date().toISOString(),
+        },
+         maxCapacity: { //cm
+            length: 200,
+            width: 200,
+            height: 200,
+            weight: 25
         }
     }
 ]
