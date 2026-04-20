@@ -35,7 +35,7 @@ export const Operator = () => {
             {drones?.map((drone) => (
               <tr key={drone.droneId}>
                 <td>
-                  <a href={`/drones/${drone.droneId}`}>{drone.droneId}</a>
+                  <a href={`/drone/${drone.droneId}`}>{drone.droneId}</a>
                 </td>
                 <td
                   className={`${
