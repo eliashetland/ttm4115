@@ -5,11 +5,12 @@ import { AllDrones } from "./drone/AllDrones";
 import { CreateOrder } from "./order/CreateOrder";
 import { OneOrder } from "./order/oneOrder/OneOrder";
 import { Operator } from "./operator/Operator";
+import { Home } from "./home/Home";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <CreateOrder />,
+    element: <Home />,
   },
   {
     path: "/drone/",
