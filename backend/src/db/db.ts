@@ -20,45 +20,50 @@ export const drones: IDrone[] = [
             width: 100,
             height: 100,
             weight: 10
-        }
+        },
+        status: "idle"
+
     },
     {
         droneId: 2,
         name: "Drone 2",
         model: "Model B",
         manufacturer: "Manufacturer Y",
-        batteryLevel: 70,
+        batteryLevel: 40,
         position: {
             latitude: 34.0522,
             longitude: -118.2437,
             altitude: 150,
             timestamp: new Date().toISOString(),
         },
-         maxCapacity: { //cm
+        maxCapacity: { //cm
             length: 50,
             width: 50,
             height: 300,
             weight: 15
         }
+        ,
+        status: "in-flight"
     },
     {
         droneId: 3,
         name: "Drone 3",
         model: "Model C",
         manufacturer: "Manufacturer Z",
-        batteryLevel: 30,
+        batteryLevel: 20,
         position: {
             latitude: 40.7128,
             longitude: -74.0060,
             altitude: 200,
             timestamp: new Date().toISOString(),
         },
-         maxCapacity: { //cm
+        maxCapacity: { //cm
             length: 200,
             width: 200,
             height: 200,
             weight: 25
-        }
+        },
+        status: "charging"
     }
 ]
 

@@ -3,7 +3,7 @@ import type { IDrone, IDroneInsert } from "../models/droneModel.js";
 
 
 export const getDrone = () => {
-    return drones;
+    return drones.sort((a, b) => a.batteryLevel - b.batteryLevel);
 };
 
 export const getDroneById = (droneId: number) => {
@@ -15,6 +15,7 @@ export const createDrone = (droneData: IDroneInsert) => {
     const newDrone: IDrone = {
         droneId: drones.length + 1,
         batteryLevel: droneData.batteryLevel ?? 100,
+        status: "idle",
         ...droneData
     }
     drones.push(newDrone);
