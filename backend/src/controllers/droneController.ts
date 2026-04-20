@@ -15,7 +15,7 @@ export const createDrone = (droneData: IDroneInsert) => {
     const newDrone: IDrone = {
         droneId: drones.length + 1,
         batteryLevel: droneData.batteryLevel ?? 100,
-        status: "idle",
+        status: droneData.status ?? "idle",
         ...droneData
     }
     drones.push(newDrone);

@@ -1,5 +1,6 @@
 import { orders } from "../db/db.js";
 import type { IOrder, IOrderHistory, IOrderInsert, IOrderLocation } from "../models/orderModel.js";
+import { deliveryQueueService } from "../services/deliveryQueueService.js";
 
 
 export const createOrder = (order: IOrderInsert) => {
@@ -28,6 +29,9 @@ export const createOrder = (order: IOrderInsert) => {
 
     orders.push(newOrder);
     console.log(orders);
+    
+    // Add to delivery queue for processing
+    deliveryQueueService.addToQueue(newOrder);
     
     return newOrder;
 };
