@@ -4,11 +4,13 @@ import { Drone } from "./drone/Drone";
 import { AllDrones } from "./drone/AllDrones";
 import { CreateOrder } from "./order/CreateOrder";
 import { OneOrder } from "./order/oneOrder/OneOrder";
+import { Operator } from "./operator/Operator";
+import { Home } from "./home/Home";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <CreateOrder />,
+    element: <Home />,
   },
   {
     path: "/drone/",
@@ -25,6 +27,10 @@ export const router = createBrowserRouter([
   {
     path: "/orders/:orderId",
     element: <OneOrder />,
+  },
+  {
+    path: "/operator",
+    element: <Operator />,
   },
   {
     path: "/example",

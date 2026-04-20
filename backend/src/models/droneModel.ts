@@ -8,8 +8,12 @@ export interface IDrone {
     batteryLevel: number;
     position: IDronePosition;
     maxCapacity: IDroneCapacity;
+    status: DroneStatus;
 }
 
-export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel"> {
+export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel" | "status"> {
     batteryLevel?: number;
+    status?: DroneStatus;
 }
+
+export type DroneStatus = "idle" | "in-flight" | "charging";
