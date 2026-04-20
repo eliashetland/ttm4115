@@ -10,8 +10,8 @@ export const drones: IDrone[] = [
         manufacturer: "Manufacturer X",
         batteryLevel: 100,
         position: {
-            latitude: 37.7749,
-            longitude: -122.4194,
+            latitude: 63.415808,
+            longitude: 10.416744,
             altitude: 100,
             timestamp: new Date().toISOString(),
         },
@@ -31,8 +31,8 @@ export const drones: IDrone[] = [
         manufacturer: "Manufacturer Y",
         batteryLevel: 40,
         position: {
-            latitude: 34.0522,
-            longitude: -118.2437,
+            latitude: 63.416808,
+            longitude: 10.396744,
             altitude: 150,
             timestamp: new Date().toISOString(),
         },
@@ -52,8 +52,8 @@ export const drones: IDrone[] = [
         manufacturer: "Manufacturer Z",
         batteryLevel: 20,
         position: {
-            latitude: 40.7128,
-            longitude: -74.0060,
+            latitude: 63.425808,
+            longitude: 10.448744,
             altitude: 200,
             timestamp: new Date().toISOString(),
         },

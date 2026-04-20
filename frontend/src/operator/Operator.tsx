@@ -3,6 +3,8 @@ import styles from "./Operator.module.css";
 import { ApiClient } from "../api/ApiClient";
 import type { IDrone } from "../api/models/IDrone";
 import { DateUtils } from "../utils/DateUtils";
+import { DroneMap } from "./DroneMap";
+import type { IDronePosition } from "../api/models/IDronePosition";
 
 export const Operator = () => {
   const { data: drones } = useQuery({
@@ -66,6 +68,20 @@ export const Operator = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className={styles.map}>
+        <DroneMap
+          position={
+            drones?.map(
+              (drone) =>
+                ({
+                  ...drone.position,
+                  droneId: drone.droneId,
+                }) as IDronePosition,
+            ) || []
+          }
+        />
       </div>
     </div>
   );
