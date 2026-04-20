@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Example } from "./example/Example";
 import { Drone } from "./drone/Drone";
-import { AllDrones } from "./drone/AllDrones";
 import { CreateOrder } from "./order/CreateOrder";
 import { OneOrder } from "./order/oneOrder/OneOrder";
 import { Operator } from "./operator/Operator";
@@ -11,10 +10,6 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
-  },
-  {
-    path: "/drone/",
-    element: <AllDrones />,
   },
   {
     path: "/drone/:droneId",

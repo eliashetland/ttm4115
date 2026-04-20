@@ -2,11 +2,28 @@ import Map, { Layer, Source } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { IDronePosition } from "../api/models/IDronePosition";
 import { TRONDHEIM_COORDINATES } from "../constants";
+import { useEffect, useState } from "react";
 interface IDroneRouteProps {
   position: IDronePosition[];
 }
 
 export const DroneMap = (props: IDroneRouteProps) => {
+  const [viewState, setViewState] = useState({
+    longitude: TRONDHEIM_COORDINATES.longitude,
+    latitude: TRONDHEIM_COORDINATES.latitude,
+    zoom: 12,
+  });
+
+  useEffect(() => {
+    if (props.position.length === 1) {
+      setViewState({
+        longitude: props.position[0].longitude,
+        latitude: props.position[0].latitude,
+        zoom: 14,
+      });
+    }
+  }, [props.position]);
+
   const dronePoints = {
     type: "FeatureCollection",
     features: props.position.map((p) => ({
@@ -26,17 +43,8 @@ export const DroneMap = (props: IDroneRouteProps) => {
   return (
     <Map
       mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
-      initialViewState={{
-        longitude:
-          props.position.length === 1
-            ? props.position[0].longitude
-            : TRONDHEIM_COORDINATES.longitude,
-        latitude:
-          props.position.length === 1
-            ? props.position[0].latitude
-            : TRONDHEIM_COORDINATES.latitude,
-        zoom: 12,
-      }}
+      {...viewState}
+      onMove={(evt) => setViewState(evt.viewState)}
       style={{ width: "100%", height: 400 }}
       mapStyle="mapbox://styles/mapbox/streets-v9"
     >
