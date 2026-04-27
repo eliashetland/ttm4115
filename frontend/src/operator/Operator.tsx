@@ -5,16 +5,29 @@ import type { IDrone } from "../api/models/IDrone";
 import { DateUtils } from "../utils/DateUtils";
 import { DroneMap } from "./DroneMap";
 import type { IDronePosition } from "../api/models/IDronePosition";
+import { useState } from "react";
 
 export const Operator = () => {
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const { data: drones } = useQuery({
     queryKey: ["drones"],
     queryFn: () => ApiClient.get<IDrone[]>("/drone"),
+    refetchInterval: autoRefresh ? 5000 : false,
   });
 
   return (
     <div className={styles.container}>
       <h1>Drones</h1>
+      <div className={styles.autoRefresh}>
+        <input
+          type="checkbox"
+          id="auto-refresh"
+          name="auto-refresh"
+          checked={autoRefresh}
+          onChange={(e) => setAutoRefresh(e.target.checked)}
+        />
+        <label htmlFor="auto-refresh">Auto-refresh</label>
+      </div>
       <div className={styles.wrapper}>
         <table className={styles.table}>
           <thead>
