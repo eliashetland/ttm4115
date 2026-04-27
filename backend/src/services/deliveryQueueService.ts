@@ -1,4 +1,4 @@
-import { IOrder } from "../models/orderModel.js";
+import type { IOrder } from "../models/orderModel.js";
 
 export interface IQueuedDelivery {
     id: string;
