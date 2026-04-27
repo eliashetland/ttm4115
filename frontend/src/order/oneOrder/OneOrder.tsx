@@ -4,6 +4,7 @@ import type { IOrder } from "../../api/models/IOrder";
 import { useParams } from "react-router-dom";
 import styles from "./OneOrder.module.css";
 import { TrackingHistory } from "./trackingHistory/TrackingHistory";
+import { DroneRoute } from "./map/DroneRoute";
 
 export const OneOrder = () => {
   const { orderId } = useParams();
@@ -28,6 +29,14 @@ export const OneOrder = () => {
         <section className={`${styles.section} ${styles.history}`}>
           <h2 className={styles.header}>History</h2>
           <TrackingHistory orders={order.history} />
+        </section>
+
+        <section className={`${styles.section} ${styles.map}`}>
+          <h2 className={styles.header}>Drone Route</h2>
+          <DroneRoute
+            orderHistory={order.history}
+            target={order.target}
+          />
         </section>
 
         <section className={`${styles.section} ${styles.size}`}>
@@ -66,6 +75,11 @@ export const OneOrder = () => {
             <p className={styles.value}>
               {order.zip} {order.city}
             </p>
+          </label>
+
+          <label className={styles.label} htmlFor="deliveryTime">
+            Estimated Delivery Time
+            <p className={styles.value}>{order.deliveryTime} minutes</p>
           </label>
         </section>
       </div>

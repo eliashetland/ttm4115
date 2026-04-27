@@ -3,8 +3,11 @@ import styles from "./CreateOrder.module.css";
 import { createEmptyOrder, type IOrderInsert } from "../api/models/IOrder";
 import { ApiClient } from "../api/ApiClient";
 import { AllOrders } from "./allOrders/AllOrders";
+
 export const CreateOrder = () => {
   const [formData, setFormData] = useState<IOrderInsert>(createEmptyOrder());
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [deliveryTime, setDeliveryTime] = useState<number | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,19 +25,44 @@ export const CreateOrder = () => {
     }));
   };
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    ApiClient.post("/order", ["order"], formData)
+    const address = `${formData.address}, ${formData.zip} ${formData.city}`;
+
+    const res = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${import.meta.env.VITE_MAPBOX_API_KEY}`,
+    );
+
+    const data = await res.json();
+
+    if (!data.features?.length) {
+      alert("No location found");
+      return;
+    }
+
+    const [lng, lat] = data.features[0].center;
+
+    setCoordinates({ lat, lng });
+
+    // Get delivery time estimate
+    const timeRes = await ApiClient.post("/order/estimate-time", [], { latitude: lat, longitude: lng });
+    setDeliveryTime(timeRes.deliveryTime);
+
+    ApiClient.post("/order", ["order"], {
+      ...formData,
+      target: { latitude: lat, longitude: lng, description: address },
+    })
       .then((createdOrder) => {
         console.log("Created order", createdOrder);
         setFormData(createEmptyOrder());
+        setCoordinates(null);
+        setDeliveryTime(null);
       })
       .catch((err) => {
         alert("Failed to create order");
         console.error("Failed to create order", err);
       });
-    console.log(formData);
   };
 
   return (
@@ -164,6 +192,14 @@ export const CreateOrder = () => {
 
           <button type="submit">Create order</button>
         </form>
+        
+        {coordinates && deliveryTime && (
+          <div className={styles.deliveryInfo}>
+            <h3>Delivery Information</h3>
+            <p>Coordinates: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}</p>
+            <p>Estimated delivery time: {Math.ceil(deliveryTime * 60)} minutes</p>
+          </div>
+        )}
 
         <div className={styles.orders}>
           <h3>All Orders</h3>

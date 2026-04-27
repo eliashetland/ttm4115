@@ -83,6 +83,22 @@ button:hover {
   background-color: #0056b3;
 }
 
+.deliveryInfo {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+}
+
+.deliveryInfo h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.deliveryInfo p {
+  margin: 0.25rem 0;
+}
+
 @media screen and (max-width: 500px) {
   .container {
     padding: 1rem;

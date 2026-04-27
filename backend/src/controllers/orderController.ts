@@ -1,10 +1,14 @@
 import { orders } from "../db/db.js";
-import type { IOrder, IOrderHistory, IOrderInsert } from "../models/orderModel.js";
+import type { IOrder, IOrderHistory, IOrderInsert, IOrderLocation } from "../models/orderModel.js";
+import { deliveryQueueService } from "../services/deliveryQueueService.js";
+import { calculateDeliveryTime } from "../services/deliveryTimeService.js";
 
 
 export const createOrder = (order: IOrderInsert) => {
 
     validateOrderData(order);
+
+    const deliveryTime = calculateDeliveryTime(order.target.latitude, order.target.longitude);
 
     const newOrder: IOrder = {
         id: orders.length > 0 ? orders[orders.length - 1]!.id + 1 : 1, //TODO: Assumes orders never deleted, so should be fixed
@@ -13,15 +17,26 @@ export const createOrder = (order: IOrderInsert) => {
             {
                 createdAt: new Date(),
                 status: "Created",
-                location: "Warehouse",
+                location: {
+                    latitude: 63.415808,
+                    longitude: 10.406744,
+                    description: "Warehouse"
+                },
+                type: "status",
                 message: "Order created and ready for processing"
             },
         ],
 
-        ...order
+        ...order,
+        deliveryTime
     };
 
     orders.push(newOrder);
+    console.log(orders);
+    
+    // Add to delivery queue for processing
+    deliveryQueueService.addToQueue(newOrder);
+    
     return newOrder;
 };
 
@@ -36,7 +51,7 @@ export const getOrderById = (orderId: number) => {
     return order || null;
 }
 
-export const updateOrderStatus = (orderId: number, status: string, location: string, message: string) => {
+export const updateOrderStatus = (orderId: number, status: string, location: IOrderLocation, message: string) => {
     const order = orders.find(order => order.id === orderId);
 
     validateUpdateOrderStatusData(status, location, message);
@@ -48,19 +63,23 @@ export const updateOrderStatus = (orderId: number, status: string, location: str
         createdAt: new Date(),
         status,
         location,
-        message
+        message,
+        type: "status"
     };
     order.history.unshift(newHistoryEntry);
     return order;
 }
 
 
-const validateUpdateOrderStatusData = (status: string, location: string, message: string) => {
+const validateUpdateOrderStatusData = (status: string, location: IOrderLocation, message: string) => {
     if (!status || !location || !message) {
         throw new Error("Status, location, and message are required");
     }
-    if (location.trim() === "" || message.trim() === "" || status.trim() === "") {
+    if (location.description.trim() === "" || message.trim() === "" || status.trim() === "") {
         throw new Error("Location, message, and status cannot be empty");
+    }
+    if (typeof location.latitude !== "number" || typeof location.longitude !== "number") {
+        throw new Error("Invalid location coordinates");
     }
 };
 

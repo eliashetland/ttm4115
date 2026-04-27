@@ -10,18 +10,29 @@ export interface IOrder {
     width: number;
     height: number;
     weight: number;
+
+    target: IOrderLocation;
     history: IOrderHistory[];
+    deliveryTime: number; // in minutes
 }
 
 export interface IOrderHistory {
     createdAt: string;
     status: string;
     message: string;
-    location: string;
+    type: "status" | "drone";
+    location: IOrderLocation;
+}
+
+export interface IOrderLocation {
+    latitude: number;
+    longitude: number;
+    description: string;
 }
 
 
-export interface IOrderInsert extends Omit<IOrder, "id" | "history"> { }
+
+export interface IOrderInsert extends Omit<IOrder, "id" | "history" | "deliveryTime"> { }
 
 export function createEmptyOrder(): IOrderInsert {
     return {
@@ -35,5 +46,10 @@ export function createEmptyOrder(): IOrderInsert {
         width: 0,
         height: 0,
         weight: 0,
+        target: {
+            latitude: 0,
+            longitude: 0,
+            description: ""
+        }
     };
 }

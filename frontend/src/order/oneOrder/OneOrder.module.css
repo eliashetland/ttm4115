@@ -53,3 +53,12 @@
   gap: 0.5rem;
   text-align: left;
 }
+
+
+.map {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
