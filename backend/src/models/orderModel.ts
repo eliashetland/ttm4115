@@ -12,6 +12,7 @@ export interface IOrder {
     weight: number;
     history: IOrderHistory[];
     target: IOrderLocation;
+    deliveryTime: number; // in minutes
 }
 
 
@@ -29,4 +30,4 @@ export interface IOrderLocation {
     description: string;
 }
 
-export interface IOrderInsert extends Omit<IOrder, "id" | "history"> { }
+export interface IOrderInsert extends Omit<IOrder, "id" | "history" | "deliveryTime"> { }

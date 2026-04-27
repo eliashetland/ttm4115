@@ -1,5 +1,6 @@
 import type { IOrder } from "../models/orderModel.js";
 
+
 export interface IQueuedDelivery {
     id: string;
     order: IOrder;

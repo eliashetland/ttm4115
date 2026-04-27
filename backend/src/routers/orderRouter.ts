@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createOrder, getAllOrders, getOrderById, updateOrderStatus } from "../controllers/orderController.js";
+import { calculateDeliveryTime } from "../services/deliveryTimeService.js";
 
 const orderRouter = Router();
 
@@ -19,7 +20,14 @@ orderRouter.post("/", (req, res) => {
 
 });
 
-
+orderRouter.post("/estimate-time", (req, res) => {
+    const { latitude, longitude } = req.body;
+    if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+        return res.status(400).json({ message: "Invalid coordinates" });
+    }
+    const time = calculateDeliveryTime(latitude, longitude); // Time in minutes
+    return res.status(200).json({ deliveryTime: time });
+});
 
 orderRouter.get("/", (req, res) => {
     const orders = getAllOrders();
