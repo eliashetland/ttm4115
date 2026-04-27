@@ -31,7 +31,7 @@ c1 = (255, 0, 0)
 c0 = (0, 0, 0)
 
 class Battery:
-    def battery_100():
+    def battery_100(self):
         global battery_level
         battery_level = 100
         for col in range(8):
@@ -39,7 +39,7 @@ class Battery:
         for col in range(8):
             sense.set_pixel(col, 7, c8)
 
-    def battery_87_5():
+    def battery_87_5(self):
         global battery_level
         battery_level = 87.5
         for col in range(8):
@@ -47,7 +47,7 @@ class Battery:
         for col in range(7):
             sense.set_pixel(col, 7, c7)
 
-    def battery_75():
+    def battery_75(self):
         global battery_level
         battery_level = 75
         for col in range(8):
@@ -55,7 +55,7 @@ class Battery:
         for col in range(6):
             sense.set_pixel(col, 7, c6)
 
-    def battery_62_5():
+    def battery_62_5(self):
         global battery_level
         battery_level = 62.5
         for col in range(8):
@@ -63,7 +63,7 @@ class Battery:
         for col in range(5):
             sense.set_pixel(col, 7, c5)
 
-    def battery_50():
+    def battery_50(self):
         global battery_level
         battery_level = 50
         for col in range(8):
@@ -71,7 +71,7 @@ class Battery:
         for col in range(4):
             sense.set_pixel(col, 7, c4)
 
-    def battery_37_5():
+    def battery_37_5(self):
         global battery_level
         battery_level = 37.5
         for col in range(8):
@@ -79,7 +79,7 @@ class Battery:
         for col in range(3):
             sense.set_pixel(col, 7, c3)
 
-    def battery_25():
+    def battery_25(self):
         global battery_level
         battery_level = 25
         for col in range(8):
@@ -87,7 +87,7 @@ class Battery:
         for col in range(2):
             sense.set_pixel(col, 7, c2)
 
-    def battery_12_5():
+    def battery_12_5(self):
         global battery_level
         battery_level = 12.5
         for col in range(8):
@@ -95,7 +95,7 @@ class Battery:
         for col in range(1):
             sense.set_pixel(col, 7, c1)
     
-    def battery_5():
+    def battery_5(self):
         global battery_level
         battery_level = 5
         for col in range(8):
@@ -107,13 +107,13 @@ class Battery:
             time.sleep(500)
         
 
-    def battery_0():
+    def battery_0(self):
         global battery_level
         battery_level = 0
         for col in range(8):
             sense.set_pixel(col, 7, c0)
 
-def create_battery_machine():
+def create_battery_machine(self):
     t0 = {"source": "initial", "target": "battery_100"}
 
     t1 = {
@@ -130,7 +130,7 @@ def create_battery_machine():
 
     t3 = {
         "trigger": "left",
-        "source": "batter_75",
+        "source": "battery_75",
         "target": "battery_62_5",
     }
 
