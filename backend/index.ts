@@ -23,6 +23,13 @@ app.use(exampleMiddleware);
 app.use('/api/example', exampleRouter);
 app.use('/api/drone', droneRouter);
 app.use('/api/drone-position', dronePositionRouter);
-app.use('/api/order', orderRouter);
+app.use('/api/order', orderRouter)
 
-app.listen(3000);
+app.listen(3000, (err)=>{
+    const status = !err ? "Success" : "Failed";
+    console.log(`Express listen status: ${status} ${err}`);
+});
+
+import mqttRouter from './src/routers/mqtt/mqttRouter.js';
+// Starts MQTT endpoints
+mqttRouter()

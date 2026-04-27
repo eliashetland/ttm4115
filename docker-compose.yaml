@@ -8,11 +8,15 @@ services:
     build: ./backend
     ports:
       - "3000:3000"
+    env_file:
+      - path: ./backend/.env
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 5s
       timeout: 3s
       retries: 5
+    depends_on:
+      - broker
 
   frontend:
     build: ./frontend
@@ -21,3 +25,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+
+  broker:
+    image: eclipse-mosquitto:latest
+    ports: # Reserved Ports for MQTT
+      - "1883:1883"

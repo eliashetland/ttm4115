@@ -6,25 +6,32 @@ sequenceDiagram
     participant API
 
     API->>API: Subscribe drones/create
-    Drone->>Drone: Subscribe drones/create
+
+    API->>API: Subscribe to drones/${ID from database}/#
 
     loop Every 5 minute until Ack
-        Drone-)+API: Send Drone Info + nonce + timestamp to /drones/create
+        Drone->>Drone: Generate random nonce
+
+        Drone->>Drone: Subscribe drones/nonce/${nonce}/timestamp/${timestamp}/id
+
+        Drone-)+API: Publish Drone Info + nonce + timestamp to drones/create
 
         API->>API: createDrone()
 
-        API->>API: Subscribe drones/${ID}/+
+        API->>API: Subscribe drones/${ID}/#
 
-        API--)-Drone: Send Drone Info + ID + nonce + timestamp to drones/create
+        API--)-Drone: Publish Drone ID to drones/nonce/${nonce}/timestamp/${timestamp}/id
 
-        Drone->>Drone: Subscribe drones/${ID}/+
+        opt Got id
+            Drone->>Drone: Subscribe drones/${ID}/#
 
-        Drone-)API: Send Ack drones/${ID}/Ack
+            Drone->>Drone: Unsubscribe drones/nonce/${nonce}/timestamp/${timestamp}/id
 
-        API--)Drone: Send Ack drones/${ID}/Ack
+            Drone-)API: Publish Ack drones/${ID}/api
+
+            API--)Drone: Publish Ack drones/${ID}/drone
+        end
     end
-
-    Drone->>Drone: Unsubscribe drones/create
 
     Drone->>Drone: Save ID to Persistent Memory
 ```

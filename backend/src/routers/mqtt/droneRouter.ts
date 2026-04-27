@@ -1,51 +1,56 @@
 import { client } from "../../controllers/mqttController.js";
-import { createDrone } from "../../controllers/droneController.js";
-
+import { createDrone, getDrone } from "../../controllers/droneController.js";
 import type { IDrone } from "../../models/droneModel.js";
 
-client.subscribe("drones/create");
+export function droneRouter() {
+  client.subscribe("drones/create");
 
-client.on("message", (topic, payload) => {
-  if (topic != "drones/create") {
-    return;
-  }
+  getDrone().forEach((drone)=>{
+    client.subscribe(`drones/${drone.droneId}/#`)
+  })
 
-  const droneDetails: {
-    nonce: number;
-    timestamp: EpochTimeStamp;
-    drone: IDrone;
-  } = JSON.parse(payload.toString());
+  client.on("message", (topic, payload) => {
+    if (topic != "drones/create") {
+      return;
+    }
 
-  const nonce = droneDetails?.nonce;
+    const droneDetails: {
+      nonce: number;
+      timestamp: EpochTimeStamp;
+      drone: IDrone;
+    } = JSON.parse(payload.toString());
 
-  const timestamp = droneDetails?.timestamp;
+    const nonce = droneDetails?.nonce;
 
-  let drone = droneDetails?.drone;
+    const timestamp = droneDetails?.timestamp;
 
-  if (!drone || !nonce || !timestamp) {
-    return;
-  }
+    let drone = droneDetails?.drone;
 
-  drone = createDrone(drone);
+    if (!drone || !nonce || !timestamp) {
+      return;
+    }
 
-  client.subscribe(`drones/${drone.droneId}/+`);
+    drone = createDrone(drone);
 
-  const message = JSON.stringify({ nonce: nonce, timestamp: timestamp, drone: drone });
+    client.subscribe(`drones/${drone.droneId}/#`);
 
-  client.publish(topic, message);
-});
+    const message = JSON.stringify(drone);
+    console.log(message);
+    client.publish(`drones/nonce/${nonce}/timestamp/${timestamp}/id`, message);
+  });
 
-client.on("message", (topic, payload) => {
-  const topicDetails = topic.split("/");
-  const id = topic.at(1);
-  if (
-    topicDetails.length == 3 &&
-    topic.at(0) != "drones" &&
-    id &&
-    topic.at(2) != "ack"
-  ) {
-    return;
-  }
+  client.on("message", (topic, payload) => {
+    const topicDetails = topic.split("/");
+    const id = topic.at(1);
+    if (
+      topicDetails.length == 3 &&
+      topic.at(0) != "drones" &&
+      id &&
+      topic.at(2) != "api"
+    ) {
+      return;
+    }
 
-  client.publish(topic, payload);
-});
+    client.publish(`drone/${id}/drone`, JSON.stringify({ack: 1}))
+  });
+}
