@@ -13,6 +13,7 @@ export interface IOrder {
 
     target: IOrderLocation;
     history: IOrderHistory[];
+    deliveryTime: number; // in minutes
 }
 
 export interface IOrderHistory {
@@ -31,7 +32,7 @@ export interface IOrderLocation {
 
 
 
-export interface IOrderInsert extends Omit<IOrder, "id" | "history"> { }
+export interface IOrderInsert extends Omit<IOrder, "id" | "history" | "deliveryTime"> { }
 
 export function createEmptyOrder(): IOrderInsert {
     return {

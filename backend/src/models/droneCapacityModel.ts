@@ -1,8 +1,8 @@
 export interface IDroneCapacity {
-    // maxWeight: number;      // kg
-    // maxVolume: number;      // cubic centimeters
-    // currentLoad: number;    // kg
-    // currentOrders: number[];
+    maxWeight: number;      // kg
+    maxVolume: number;      // cubic centimeters
+    currentLoad: number;    // kg
+    currentOrders: number[];
 
     weight: number;         // kg
     length: number;         // cm

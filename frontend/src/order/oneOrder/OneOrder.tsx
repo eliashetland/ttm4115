@@ -76,6 +76,11 @@ export const OneOrder = () => {
               {order.zip} {order.city}
             </p>
           </label>
+
+          <label className={styles.label} htmlFor="deliveryTime">
+            Estimated Delivery Time
+            <p className={styles.value}>{order.deliveryTime} minutes</p>
+          </label>
         </section>
       </div>
     </div>
