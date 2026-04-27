@@ -14,10 +14,11 @@ driver = Driver()
 driver.add_machine(drone_status)
 
 #permanent variables
-id = 1234
+id = 1
 
 #battery stm
 sense = SenseHat()
+sense.low_light = True
 sense.clear()
 c8 = (0, 255, 0)
 c7 = (65, 255, 0)
@@ -270,11 +271,9 @@ driver.add_machine(battery_machine)
     
 #coordinates
 class Coordinates:
-    def __init__(self):
-        pass
     def gps_array(stop):
-        start = {'latitude' : 63.418568,
-                 'longitude' : 10.402834}
+        start = {'latitude' : 63.415808,
+                 'longitude' : 10.406744}
         global points
         points = 4
         gps_array = {'latitude': np.linspace(start["latitude"], stop["latitude"], points),
@@ -361,6 +360,7 @@ myclient.stm_driver = driver
 myclient.start(broker, port)
 driver.start()
 
+#joystick
 while True:
   for event in sense.stick.get_events():
     # Check if the joystick was pressed
