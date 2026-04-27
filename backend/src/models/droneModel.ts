@@ -9,6 +9,7 @@ export interface IDrone {
     position: IDronePosition;
     maxCapacity: IDroneCapacity;
     status: DroneStatus;
+    orderId?: number;
 }
 
 export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel" | "status"> {
