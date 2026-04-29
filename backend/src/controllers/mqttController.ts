@@ -3,6 +3,9 @@ import mqtt from "mqtt";
 const mqttHost = `${process.env.MQTT_HOST}`;
 const mqttPort = `${process.env.MQTT_PORT}`;
 const url = `mqtt://${mqttHost}:${mqttPort}`;
+
+export const baseUrl = "09/"
+
 export const client = mqtt.connect(url);
 if (process.env.MQTT_DEBUG) {
   console.log("Connecting to:", url);

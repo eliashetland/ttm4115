@@ -1,16 +1,16 @@
-import { client } from "../../controllers/mqttController.js";
+import { baseUrl, client } from "../../controllers/mqttController.js";
 import { createDrone, getDrone } from "../../controllers/droneController.js";
 import type { IDrone } from "../../models/droneModel.js";
 
 export function droneRouter() {
-  client.subscribe("drones/create");
+  client.subscribe(`drones/create`);
 
   getDrone().forEach((drone)=>{
     client.subscribe(`drones/${drone.droneId}/#`)
   })
 
   client.on("message", (topic, payload) => {
-    if (topic != "drones/create") {
+    if (topic != `drones/create`) {
       return;
     }
 
@@ -51,6 +51,6 @@ export function droneRouter() {
       return;
     }
 
-    client.publish(`drone/${id}/drone`, JSON.stringify({ack: 1}))
+    client.publish(`drones/${id}/drone`, JSON.stringify({ack: 1}))
   });
 }
