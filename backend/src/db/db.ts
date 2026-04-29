@@ -8,6 +8,7 @@ export const drones: IDrone[] = [
         name: "Drone 1",
         model: "Model A",
         manufacturer: "Manufacturer X",
+        orderId: 1,
         batteryLevel: 100,
         position: {
             latitude: 63.415808,
