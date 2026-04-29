@@ -7,11 +7,12 @@ import numpy as np
 from drone_status_fsm import DroneStatus, create_machine as create_drone_status_machine
 from sense_hat import SenseHat
 import time
+import pyudev
 
 #starting the drone status machine
-drone_status = create_drone_status_machine()
+drone_status_machine = create_drone_status_machine()
 driver = Driver()
-driver.add_machine(drone_status)
+driver.add_machine(drone_status_machine)
 
 #permanent variables
 id = 1
@@ -29,91 +30,77 @@ c3 = (255, 170, 0)
 c2 = (255, 85, 0)
 c1 = (255, 0, 0)
 c0 = (0, 0, 0)
+blue = (0, 0, 255)
+pink = (255, 0, 255)
+
+def led_id(colour):
+    sense.set_pixel(4,1,colour)
+    sense.set_pixel(3,2,colour)
+    sense.set_pixel(4,2,colour)
+    sense.set_pixel(4,3,colour)
+    sense.set_pixel(4,4,colour)
+    sense.set_pixel(4,5,colour)
+    sense.set_pixel(3,6,colour)
+    sense.set_pixel(4,6,colour)
+    sense.set_pixel(5,6,colour)
+
+led_id(pink)
 
 class Battery:
+    def __init__(self, sense):
+        self.sense = sense
+
+    def led_stripe(self, length, colour):
+        for col in range(length):
+            self.sense.set_pixel(col, 7, colour)
+        for col in range(length,8):
+            self.sense.set_pixel(col, 7, c0)
+        
     def battery_100(self):
-        global battery_level
-        battery_level = 100
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        for col in range(8):
-            sense.set_pixel(col, 7, c8)
+        self.level = 100
+        self.led_stripe(8,c8)
 
     def battery_87_5(self):
-        global battery_level
-        battery_level = 87.5
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        for col in range(7):
-            sense.set_pixel(col, 7, c7)
+        self.level = 87.5
+        self.led_stripe(7,c7)
 
     def battery_75(self):
-        global battery_level
-        battery_level = 75
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        for col in range(6):
-            sense.set_pixel(col, 7, c6)
+        self.level = 75
+        self.led_stripe(6,c6)
 
     def battery_62_5(self):
-        global battery_level
-        battery_level = 62.5
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        for col in range(5):
-            sense.set_pixel(col, 7, c5)
+        self.level = 62.5
+        self.led_stripe(5,c5)
 
     def battery_50(self):
-        global battery_level
-        battery_level = 50
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        for col in range(4):
-            sense.set_pixel(col, 7, c4)
+        self.level = 50
+        self.led_stripe(4,c4)
 
     def battery_37_5(self):
-        global battery_level
-        battery_level = 37.5
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        for col in range(3):
-            sense.set_pixel(col, 7, c3)
+        self.level = 37.5
+        self.led_stripe(3,c3)
 
     def battery_25(self):
-        global battery_level
-        battery_level = 25
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        for col in range(2):
-            sense.set_pixel(col, 7, c2)
+        self.level = 25
+        self.led_stripe(2,c2)
 
     def battery_12_5(self):
-        global battery_level
-        battery_level = 12.5
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        for col in range(1):
-            sense.set_pixel(col, 7, c1)
+        self.level = 12.5
+        self.led_stripe(1,c1)
     
-    def battery_5(self):
-        global battery_level
-        battery_level = 5
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
-        while battery_machine.state == "battery_5":
-            sense.set_pixel(0, 7, c1)
-            time.sleep(500)
-            sense.set_pixel(0, 7, c0)
-            time.sleep(500)
-        
+    def battery_5_on(self):
+        self.level = 5
+        self.led_stripe(1,c1)
+
+    def battery_5_off(self):
+        self.level = 5
+        self.led_stripe(0,c0)
 
     def battery_0(self):
-        global battery_level
-        battery_level = 0
-        for col in range(8):
-            sense.set_pixel(col, 7, c0)
+        self.level = 0
+        self.led_stripe(8,c0)
 
-def create_battery_machine(self):
+def create_battery_machine():
     t0 = {"source": "initial", "target": "battery_100"}
 
     t1 = {
@@ -154,65 +141,95 @@ def create_battery_machine(self):
 
     t7 = {
         "trigger": "left",
-        "source": "battery_12.5",
-        "target": "battery_5",
+        "source": "battery_25",
+        "target": "battery_12_5",
     }
 
     t8 = {
         "trigger": "left",
-        "source": "battery_5",
-        "target": "battery_0",
+        "source": "battery_12_5",
+        "target": "battery_5_on",
     }
 
     t9 = {
-        "trigger": "right",
-        "source": "battery_0",
-        "target": "battery_5",
+        "trigger": "t_b",
+        "source": "battery_5_on",
+        "target": "battery_5_off",
     }
 
     t10 = {
-        "trigger": "right",
-        "source": "battery_5",
-        "target": "battery_12_5",
+        "trigger": "t_b",
+        "source": "battery_5_off",
+        "target": "battery_5_on",
     }
 
     t11 = {
+        "trigger": "left",
+        "source": "battery_5_on",
+        "target": "battery_0",
+    }
+
+    t12 = {
+        "trigger": "left",
+        "source": "battery_5_off",
+        "target": "battery_0",
+    }
+
+    t13 = {
+        "trigger": "right",
+        "source": "battery_0",
+        "target": "battery_5_on",
+    }
+
+    t14 = {
+        "trigger": "right",
+        "source": "battery_5_on",
+        "target": "battery_12_5",
+    }
+
+    t15 = {
+        "trigger": "right",
+        "source": "battery_5_off",
+        "target": "battery_12_5",
+    }
+
+    t16 = {
         "trigger": "right",
         "source": "battery_12_5",
         "target": "battery_25",
     }
 
-    t12 = {
+    t17 = {
         "trigger": "right",
         "source": "battery_25",
         "target": "battery_37_5",
     }
 
-    t13 = {
+    t18 = {
         "trigger": "right",
         "source": "battery_37_5",
         "target": "battery_50",
     }
 
-    t14 = {
+    t19 = {
         "trigger": "right",
         "source": "battery_50",
         "target": "battery_62_5",
     }
 
-    t15 = {
+    t20 = {
         "trigger": "right",
         "source": "battery_62_5",
         "target": "battery_75",
     }
 
-    t16 = {
+    t21 = {
         "trigger": "right",
         "source": "battery_75",
         "target": "battery_87_5",
     }
 
-    t17 = {
+    t22 = {
         "trigger": "right",
         "source": "battery_87_5",
         "target": "battery_100",
@@ -250,23 +267,29 @@ def create_battery_machine(self):
         'entry': 'battery_12_5'
     }
 
-    battery_5 = {'name': 'battery_5',
-        'entry': 'battery_5'
+    battery_5_on = {'name': 'battery_5_on',
+        'entry': 'battery_5_on; start_timer("t_b", 500)',
+        'exit' : 'stop_timer("t_b")'
+    }
+
+    battery_5_off = {'name': 'battery_5_off',
+        'entry': 'battery_5_off; start_timer("t_b", 500)',
+        'exit' : 'stop_timer("t_b")'
     }
 
     battery_0 = {'name': 'battery_0',
         'entry': 'battery_0'
     }
 
-    battery =  Battery()
-    machine = Machine(transitions=[t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17],
-                      states=[battery_100, battery_87_5, battery_75, battery_62_5, battery_50, battery_37_5, battery_25, battery_12_5, battery_5, battery_0],
+    battery =  Battery(sense)
+    machine = Machine(transitions=[t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22],
+                      states=[battery_100, battery_87_5, battery_75, battery_62_5, battery_50, battery_37_5, battery_25, battery_12_5, battery_5_on, battery_5_off, battery_0],
                       obj=battery,
                       name="battery")
     battery.stm = machine
-    return machine
+    return machine, battery
 
-battery_machine = create_battery_machine()
+battery_machine, battery = create_battery_machine()
 driver.add_machine(battery_machine)
     
 #coordinates
@@ -291,10 +314,10 @@ class Heartbeat:
         heartbeat_data = {
             'id': id,
             'timestamp': datetime.now().isoformat(),
-            'state': drone_status.state,
-            'battery_level': battery_level,
-            'gps': {"latitude" : coordinates["latitude"][c],
-                    "longitude" : coordinates["longitude"][c]}
+            'state': drone_status_machine.state,
+            'battery_level': battery.level,
+            'gps': {"latitude" : float(coordinates["latitude"][c]),
+                    "longitude" : float(coordinates["longitude"][c])}
         }
         self.stm.client.publish("09/heartbeat", json.dumps(heartbeat_data))
         c+=1
@@ -360,20 +383,31 @@ myclient.stm_driver = driver
 myclient.start(broker, port)
 driver.start()
 
+#USB
+context = pyudev.Context()
+monitor = pyudev.Monitor.from_netlink(context)
+monitor.filter_by(subsystem='usb')
+
 #joystick
 while True:
-  for event in sense.stick.get_events():
+    for event in sense.stick.get_events():
     # Check if the joystick was pressed
-    if event.action == "pressed":
-      
-      # Check which direction
-      if event.direction == "up":
-        battery_machine.send("up")      # Up arrow
-      elif event.direction == "down":
-        battery_machine.send("down")      # Down arrow
-      elif event.direction == "left": 
-        battery_machine.send("left")      # Left arrow
-      elif event.direction == "right":
-        battery_machine.send("right")      # Right arrow
-      elif event.direction == "middle":
-        battery_machine.send("middle")      # Enter key 
+        if event.action == "pressed":
+            # Check which direction
+            if event.direction == "up":
+                battery_machine.send("up")      # Up arrow
+            elif event.direction == "down":
+                battery_machine.send("down")      # Down arrow
+            elif event.direction == "left": 
+                battery_machine.send("left")      # Left arrow
+            elif event.direction == "right":
+                battery_machine.send("right")      # Right arrow
+            elif event.direction == "middle":
+                battery_machine.send("middle")      # Enter key 
+    for device in iter(monitor.poll, None):
+        if device.action == 'add':
+            drone_status_machine.send("new_job_charging")
+            sense.set_pixel(1,1,blue)
+        elif device.action == 'remove':
+            drone_status_machine.send("charging_complete")
+            sense.set_pixel(1,1,c0)
