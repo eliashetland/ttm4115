@@ -46,7 +46,8 @@ export const CreateOrder = () => {
     setCoordinates({ lat, lng });
 
     // Get delivery time estimate
-    const timeRes = await ApiClient.post("/order/estimate-time", [], { latitude: lat, longitude: lng });
+    // TODO: Is there suppose to be more than deliveryTime in the result?
+    const timeRes: {deliveryTime: number} = await ApiClient.post("/order/estimate-time", [], { latitude: lat, longitude: lng });
     setDeliveryTime(timeRes.deliveryTime);
 
     ApiClient.post("/order", ["order"], {
