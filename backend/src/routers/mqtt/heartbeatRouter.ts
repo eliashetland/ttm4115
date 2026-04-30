@@ -8,14 +8,19 @@ client.on("connect", () => {
 
 export function heartbeatMQTT(topic: string, message: string) {
   const data = JSON.parse(message.toString());
-  const { id, battery_level, gps, timestamp, state } = data;
+  const { id, battery_level, gps, timestamp, delivery_status } = data;
 
-  const res = updateDroneFromHeartbeat(id, battery_level, {
-    latitude: gps.latitude,
-    longitude: gps.longitude,
-    altitude: 100,
-    timestamp: timestamp,
-  });
+  const res = updateDroneFromHeartbeat(
+    id,
+    battery_level,
+    {
+      latitude: gps.latitude,
+      longitude: gps.longitude,
+      altitude: 100,
+      timestamp: timestamp,
+    },
+    delivery_status   
+  );
 
   if (process.env.MQTT_DEBUG) console.log(res);
 }
