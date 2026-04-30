@@ -22,7 +22,9 @@ export const drones: IDrone[] = [
             height: 100,
             weight: 10
         },
-        status: "idle"
+        status: "idle",
+        deliveryStatus: "Order received"
+
 
     },
     {
@@ -44,7 +46,10 @@ export const drones: IDrone[] = [
             weight: 15
         }
         ,
-        status: "in-flight"
+        status: "in-flight",
+        deliveryStatus: "Order received"
+
+        
     },
     {
         droneId: 3,
@@ -64,7 +69,9 @@ export const drones: IDrone[] = [
             height: 200,
             weight: 25
         },
-        status: "charging"
+        status: "charging",
+        deliveryStatus: "Order received"
+
     }
 ]
 
