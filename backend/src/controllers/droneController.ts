@@ -11,6 +11,8 @@ export const getDroneById = (droneId: number) => {
     return drone;
 };
 
+// droneData can contain droneId if the type IDrone is used. This overwrites the newly given droneId
+// Fix implemented at the moment is setting the droneId after the droneData sets the Id
 export const createDrone = (droneData: IDroneInsert) => {
     const newDrone: IDrone = {
         droneId: drones.length + 1,
@@ -18,6 +20,7 @@ export const createDrone = (droneData: IDroneInsert) => {
         status: droneData.status ?? "idle",
         ...droneData
     }
+    newDrone.droneId = drones.length + 1;
     drones.push(newDrone);
     return newDrone;
 };
