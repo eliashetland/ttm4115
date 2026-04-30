@@ -1,56 +1,44 @@
-import { baseUrl, client } from "../../controllers/mqttController.js";
+import { client } from "../../controllers/mqttController.js";
 import { createDrone, getDrone } from "../../controllers/droneController.js";
 import type { IDrone } from "../../models/droneModel.js";
 
-export function droneRouter() {
-  client.subscribe(`drones/create`);
+client.subscribe(`drones/create`);
+getDrone().forEach((drone) => {
+  client.subscribe(`drones/${drone.droneId}/droneAck`);
+});
 
-  getDrone().forEach((drone)=>{
-    client.subscribe(`drones/${drone.droneId}/#`)
-  })
+export function droneCreateMQTT(topic: string, message: string) {
+  const droneDetails: {
+    nonce: number;
+    timestamp: EpochTimeStamp;
+    drone: IDrone;
+  } = JSON.parse(message.toString());
 
-  client.on("message", (topic, payload) => {
-    if (topic != `drones/create`) {
-      return;
-    }
+  const nonce = droneDetails?.nonce;
 
-    const droneDetails: {
-      nonce: number;
-      timestamp: EpochTimeStamp;
-      drone: IDrone;
-    } = JSON.parse(payload.toString());
+  const timestamp = droneDetails?.timestamp;
 
-    const nonce = droneDetails?.nonce;
+  let drone = droneDetails?.drone;
 
-    const timestamp = droneDetails?.timestamp;
+  if (!drone || !nonce || !timestamp) {
+    return;
+  }
 
-    let drone = droneDetails?.drone;
+  drone = createDrone(drone);
 
-    if (!drone || !nonce || !timestamp) {
-      return;
-    }
+  client.subscribe(`drones/${drone.droneId}/#`);
 
-    drone = createDrone(drone);
+  const response = JSON.stringify(drone);
 
-    client.subscribe(`drones/${drone.droneId}/#`);
+  if (process.env.MQTT_DEBUG) console.log(response);
 
-    const message = JSON.stringify(drone);
-    console.log(message);
-    client.publish(`drones/nonce/${nonce}/timestamp/${timestamp}/id`, message);
-  });
+  client.publish(`drones/nonce/${nonce}/timestamp/${timestamp}/id`, response);
+}
 
-  client.on("message", (topic, payload) => {
-    const topicDetails = topic.split("/");
-    const id = topic.at(1);
-    if (
-      topicDetails.length == 3 &&
-      topic.at(0) != "drones" &&
-      id &&
-      topic.at(2) != "api"
-    ) {
-      return;
-    }
-
-    client.publish(`drones/${id}/drone`, JSON.stringify({ack: 1}))
-  });
+export function droneAckMQTT(id: number, message: string) {
+  if (isNaN(id)) {
+    if (process.env.MQTT_DEBUG) console.log("Id is not valid");
+    return;
+  }
+  client.publish(`drones/${id}/APIAck`, JSON.stringify({ ack: 1 }));
 }
