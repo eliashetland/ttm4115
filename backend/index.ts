@@ -1,76 +1,47 @@
-
-import express from 'express';
-import exampleRouter from './src/routers/exampleRouter.js';
-import exampleMiddleware from './src/middlewares/exampleMiddleware.js';
-import cors from 'cors';
-import dronePositionRouter from './src/routers/dronePositionRouter.js';
-import droneRouter from './src/routers/droneRouter.js';
-import orderRouter from './src/routers/orderRouter.js';
-import mqtt from 'mqtt';
-import { updateDroneFromHeartbeat } from './src/controllers/heartbeatController.js';
-
-
-// MQTT setup
-
-const client = mqtt.connect('mqtt://mqtt20.iik.ntnu.no:1883');
-
-const HEARTBEAT_TOPIC = '09/heartbeat';
-
-client.on('connect', () => {
-    client.subscribe(HEARTBEAT_TOPIC);
-});
-
-client.on('message', (topic, message) => {
-    switch (topic) {
-        case HEARTBEAT_TOPIC:
-
-            const data = JSON.parse(message.toString());
-            const {
-                id,
-                battery_level,
-                gps,
-                timestamp,
-                state
-            } = data;
-
-
-            const res = updateDroneFromHeartbeat(id, battery_level, {
-                latitude: gps.latitude,
-                longitude: gps.longitude,
-                altitude: 100,
-                timestamp: timestamp
-            });
-
-            console.log(res);
-
-            break;
-    }
-});
-
-
+import express from "express";
+import exampleRouter from "./src/routers/exampleRouter.js";
+import exampleMiddleware from "./src/middlewares/exampleMiddleware.js";
+import cors from "cors";
+import dronePositionRouter from "./src/routers/dronePositionRouter.js";
+import droneRouter from "./src/routers/droneRouter.js";
+import orderRouter from "./src/routers/orderRouter.js";
 
 //express setup
-const app = express()
-app.use(cors({
-    origin: ['http://localhost:5173'],
+const app = express();
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
     credentials: true,
-}))
+  }),
+);
 app.use(express.json());
 
-app.get('/health', (req, res) => {
-    res.send('ok')
-})
+app.get("/health", (req, res) => {
+  res.send("ok");
+});
 
 app.use(exampleMiddleware);
 
+app.use("/api/example", exampleRouter);
+app.use("/api/drone", droneRouter);
+app.use("/api/drone-position", dronePositionRouter);
+app.use("/api/order", orderRouter);
 
+app.listen(3000, (err) => {
+  const status = !err ? "Success" : "Failed";
+  console.log(`Express listen status: ${status} ${err}`);
+});
 
-app.use('/api/example', exampleRouter);
-app.use('/api/drone', droneRouter);
-app.use('/api/drone-position', dronePositionRouter);
-app.use('/api/order', orderRouter);
-
-app.listen(3000);
-
-
-
+import mqttRouter from "./src/routers/mqtt/mqttRouter.js";
+import { client } from "./src/controllers/mqttController.js";
+// Starts MQTT endpoints
+if (process.env.MQTT_DEBUG) console.log("MQTT DEBUG ON");
+client.on("message", (topic, payload) => {
+  if (process.env.MQTT_DEBUG)
+    console.log(`MQTT Router got topic: ${topic} and message: ${payload}`);
+  try {
+    mqttRouter(topic, payload);
+  } catch (error) {
+    console.log(error)
+  }
+});
