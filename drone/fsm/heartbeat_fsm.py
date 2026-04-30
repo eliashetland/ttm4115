@@ -21,6 +21,7 @@ id = 1
 sense = SenseHat()
 sense.low_light = True
 sense.clear()
+
 c8 = (0, 255, 0)
 c7 = (65, 255, 0)
 c6 = (130, 255, 0)
@@ -387,27 +388,32 @@ driver.start()
 context = pyudev.Context()
 monitor = pyudev.Monitor.from_netlink(context)
 monitor.filter_by(subsystem='usb')
+monitor.start()
 
 #joystick
-while True:
-    for event in sense.stick.get_events():
-    # Check if the joystick was pressed
-        if event.action == "pressed":
-            # Check which direction
-            if event.direction == "up":
-                battery_machine.send("up")      # Up arrow
-            elif event.direction == "down":
-                battery_machine.send("down")      # Down arrow
-            elif event.direction == "left": 
-                battery_machine.send("left")      # Left arrow
-            elif event.direction == "right":
-                battery_machine.send("right")      # Right arrow
-            elif event.direction == "middle":
-                battery_machine.send("middle")      # Enter key 
-    for device in iter(monitor.poll, None):
-        if device.action == 'add':
-            drone_status_machine.send("new_job_charging")
-            sense.set_pixel(1,1,blue)
-        elif device.action == 'remove':
-            drone_status_machine.send("charging_complete")
-            sense.set_pixel(1,1,c0)
+try:
+	while True:
+		for event in sense.stick.get_events():
+		# Check if the joystick was pressed
+			if event.action == "pressed":
+				# Check which direction
+				if event.direction == "up":
+					battery_machine.send("up")      # Up arrow
+				elif event.direction == "down":
+					battery_machine.send("down")      # Down arrow
+				elif event.direction == "left": 
+					battery_machine.send("left")      # Left arrow
+				elif event.direction == "right":
+					battery_machine.send("right")      # Right arrow
+				elif event.direction == "middle":
+					battery_machine.send("middle")      # Enter key 
+		device = monitor.poll(timeout=0.1)
+		if device is not None and device.action == 'add':
+			drone_status_machine.send("new_job_charging")
+			sense.set_pixel(0,0,blue)
+		elif device is not None and device.action == 'remove':
+			drone_status_machine.send("charging_complete")
+			sense.set_pixel(0,0,c0)
+finally:
+    sense.clear()
+    driver.stop()
