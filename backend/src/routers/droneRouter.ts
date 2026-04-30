@@ -39,6 +39,41 @@ droneRouter.get("/:id/battery", (req, res) => {
   return res.status(200).json({ batteryLevel: drone.batteryLevel });
 });
 
+droneRouter.get("/:id/delivery-status", (req, res) => {
+  const id = parseInt(req.params.id);
+  if (!id) {
+    return res.status(400).json({ message: "Invalid drone ID" });
+  }
+
+  const drone = getDroneById(id);
+  if (!drone) {
+    return res.status(404).json({ message: "Drone not found" });
+  }
+
+  return res.status(200).json({ deliveryStatus: drone.deliveryStatus });
+});
+
+droneRouter.put("/:id/delivery-status", (req, res) => {
+  const id = parseInt(req.params.id);
+  if (!id) {
+    return res.status(400).json({ message: "Invalid drone ID" });
+  }
+
+  const { deliveryStatus } = req.body;
+  if (!deliveryStatus) {
+    return res.status(400).json({ message: "deliveryStatus is required" });
+  }
+
+  const drone = getDroneById(id);
+  if (!drone) {
+    return res.status(404).json({ message: "Drone not found" });
+  }
+
+  drone.deliveryStatus = deliveryStatus;
+  return res.status(200).json(drone);
+});
+
+
 droneRouter.post("/", (req, res) => {
   const newDroneData = req.body;
   if (!newDroneData.name || !newDroneData.model || !newDroneData.manufacturer) {
