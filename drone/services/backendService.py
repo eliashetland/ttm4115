@@ -1,20 +1,18 @@
-
 from uuid import uuid1
 import paho.mqtt.client as mqtt
 import os
 import json
+import threading
 
 client = mqtt.Client()
 
-broker = os.getenv("MQTT_BROKER", "mqtt20.iik.ntnu.no")
+broker = os.getenv("MQTT_BROKER", "localhost")
 port = os.getenv("MQTT_PORT", 1883)
 
 client.connect(broker, port)
+client.loop_start()
 
 drone = {
-  "nonce": 24,
-  "timestamp": 1777553417274,
-  "drone": {
     "droneId": -1,
     "name": "HAHA",
     "model": "lmao",
@@ -37,23 +35,49 @@ drone = {
       "height": 6
     },
     "status": "idle"
-  }
 }
 
-def getId(stm):
-    nonce = uuid1()
-    
-    client.subscribe(f"drones/nonce/{nonce}/id")        
-    
+def getId(setId, timeout=5):
+    nonce = str(uuid1())
+
+    # Event used to block until reply arrives
+    response_event = threading.Event()
+
+    client.subscribe(f"drones/nonce/{nonce}/id")
+
     def on_nonce_response(client, userdata, message):
-        id = json.loads(message).id
+        payload = json.loads(message.payload.decode())
+        id = payload["id"]
+
         client.subscribe(f"drones/{id}/#")
         client.unsubscribe(f"drones/nonce/{nonce}/id")
         client.publish(f"drones/{id}/drone-ack", json.dumps({"ack": 1}))
-        stm.id = id
-        stm.send("gotId")
-    
-    client.message_callback_add(f"drones/nonce/{nonce}/id", on_nonce_response)
-    client.publish("drones/create", json.dumps({"drone": drone, "nonce": nonce}))
 
-getId()
+        setId(id)
+
+        # 👇 wake up the waiting code
+        response_event.set()
+
+    client.message_callback_add(
+        f"drones/nonce/{nonce}/id",
+        on_nonce_response
+    )
+
+    # Send request
+    client.publish(
+        "drones/create",
+        json.dumps({"drone": drone, "nonce": nonce})
+    )
+
+    print("Waiting for drone ID...")
+
+    # 👇 BLOCK HERE until response or timeout
+    success = response_event.wait(timeout)
+
+    if not success:
+        raise TimeoutError("Did not receive drone ID within timeout")
+   
+def setId(id):
+    print("Received drone id:", id)
+ 
+getId(setId)

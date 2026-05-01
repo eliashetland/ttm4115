@@ -25,7 +25,7 @@ export function droneCreateMQTT(topic: string, message: string) {
 
   client.subscribe(`drones/${drone.droneId}/#`);
 
-  const response = JSON.stringify(drone);
+  const response = JSON.stringify({id: drone.droneId});
 
   if (process.env.MQTT_DEBUG) console.log(response);
 
