@@ -6,6 +6,7 @@ import { DateUtils } from "../utils/DateUtils";
 import { DroneMap } from "./DroneMap";
 import type { IDronePosition } from "../api/models/IDronePosition";
 import { useState } from "react";
+import { Link } from "react-router";
 
 export const Operator = () => {
   const [autoRefresh, setAutoRefresh] = useState(false);
@@ -37,6 +38,7 @@ export const Operator = () => {
               <th>status</th>
               <th>last update</th>
               <th>time left</th>
+              <th>order</th>
               <th>name</th>
               <th>model</th>
               <th>manufacturer</th>
@@ -66,6 +68,7 @@ export const Operator = () => {
                   {DateUtils.format(drone.position.timestamp, "HH:mm:ss")}
                 </td>
                 <td>{drone.timeLeft !== undefined ? `${DateUtils.timeStringFromMinutes(drone.timeLeft)}` : "N/A"}</td>
+                <td><Link to={`/orders/${drone.orderId}`}>{drone.orderId}</Link></td>
                 <td>{drone.name}</td>
                 <td>{drone.model}</td>
                 <td>{drone.manufacturer}</td>
