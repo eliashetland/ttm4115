@@ -11,7 +11,7 @@ import pyudev
 
 class DeliveryStatus:
     def __init__(self):
-        self.status = "Order received"
+        self.status = "Waiting for job"
 
     def set_order_received(self):
         self.status = "Order received"
@@ -20,10 +20,12 @@ class DeliveryStatus:
         self.status = "On the way"
 
     def set_delivered(self):
-        self.status = "Delivered"
+        self.status = "Delivered"  # Could be Drop off 
 
     def set_failed(self):
         self.status = "Failed"
+
+
 
 
 #starting the drone status machine
@@ -311,33 +313,111 @@ battery_machine, battery = create_battery_machine()
 driver.add_machine(battery_machine)
 
 # Delivery Status FSM
+# WAITING FRO JOB  WITH MQTTX REQUEST GOES TO ORDER RECEIVED THE STATUS AND  WHEN ORDER RECEIVED IT SHOULD BLINK WITH THE LEDS ON      
+# THAT KEEPS BLINKING UNTIL  TO YOU PRESS ON THE JOYSTICK  (the middle) TO GET TO THE NEXT STATTUS DELIVERY THAT THAT IS ON THE WAY THEN  
+# AND  AFTER THE ARRAYS (We have to make a quordinate where we get to the destination and we have to make array of some length to get to that destination to make it realistic and then when it finsishes trought the array  )
+# IT GOES TO THE NEXT FINAL STAGE THAT IS DROP OFF AND THEN IT GOES BACK "ON THE WAY BACK" and on each phases the led onthe top left should trun on for example if the satus is on order received  the led should turn on the far left corn and then on the next phase it should turn on 2 light on the  far left corner  to show us it us another phrase and etc..
+# Waiting for job -> Order received -> On the way -> dROP OFF -> Delivered -> oN THE WAY BACK
+
 def create_delivery_status_machine():
-    t0 = {"source": "initial", "target": "order_received"}
+    t0 = {"source": "initial", "target": "waiting_for_job"}
 
-    t_left =  {"trigger": "left",  "source": "*", "target": "order_received"}
-    t_right = {"trigger": "right", "source": "*", "target": "on_the_way"}
-    t_up =    {"trigger": "up",    "source": "*", "target": "delivered"}
-    t_down =  {"trigger": "down",  "source": "*", "target": "failed"}
+    # joystick transitions
+    t_next = {"trigger": "middle", "source": "*", "target": "next_phase"}
 
-    order_received = {"name": "order_received", "entry": "set_order_received"}
-    on_the_way     = {"name": "on_the_way",     "entry": "set_on_the_way"}
-    delivered      = {"name": "delivered",      "entry": "set_delivered"}
-    failed         = {"name": "failed",         "entry": "set_failed"}
+    # automatic transitions
+    t_arrived = {"trigger": "arrived", "source": "on_the_way", "target": "drop_off"}
+    t_drop_done = {"trigger": "drop_done", "source": "drop_off", "target": "delivered"}
+    t_return = {"trigger": "return", "source": "delivered", "target": "on_the_way_back"}
+    t_back_home = {"trigger": "home", "source": "on_the_way_back", "target": "waiting_for_job"}
 
-    status_obj = DeliveryStatus()
+    # STATES
+    waiting_for_job = {
+        "name": "waiting_for_job",
+        "entry": "set_waiting; leds_waiting"
+    }
+
+    order_received = {
+        "name": "order_received",
+        "entry": "set_order_received; leds_order_received"
+    }
+
+    on_the_way = {
+        "name": "on_the_way",
+        "entry": "set_on_the_way; leds_on_the_way"
+    }
+
+    drop_off = {
+        "name": "drop_off",
+        "entry": "set_drop_off; leds_drop_off"
+    }
+
+    delivered = {
+        "name": "delivered",
+        "entry": "set_delivered; leds_delivered"
+    }
+
+    on_the_way_back = {
+        "name": "on_the_way_back",
+        "entry": "set_on_the_way_back; leds_on_the_way_back"
+    }
+
+
+    # OBJECT
+    class DeliveryStatusExtended(DeliveryStatus):
+        def set_waiting(self):
+            self.status = "Waiting for job"
+
+        def set_drop_off(self):
+            self.status = "Drop off"
+
+        def set_on_the_way_back(self):
+            self.status = "On the way back"
+
+        # LED patterns
+        def leds_waiting(self):
+            sense.clear()
+
+        def leds_order_received(self):
+            sense.set_pixel(0, 0, (255, 0, 0))  # 1 LED  
+
+        def leds_on_the_way(self):
+            sense.set_pixel(0, 0, (255, 0, 0))
+            sense.set_pixel(1, 0, (255, 0, 0))  # 2 LEDs
+
+        def leds_drop_off(self):
+            for x in range(3):
+                sense.set_pixel(x, 0, (255, 0, 0))  # 3 LEDs
+
+        def leds_delivered(self):
+            for x in range(4):
+                sense.set_pixel(x, 0, (255, 0, 0))  # 4 LEDs
+
+        def leds_on_the_way_back(self):
+            for x in range(5):
+                sense.set_pixel(x, 0, (255, 0, 0))  # 5 LEDs
+
+    status_obj = DeliveryStatusExtended()
 
     machine = Machine(
         name="delivery_status",
         obj=status_obj,
-        states=[order_received, on_the_way, delivered, failed],
-        transitions=[t0, t_left, t_right, t_up, t_down]
+        states=[
+            waiting_for_job,
+            order_received,
+            on_the_way,
+            drop_off,
+            delivered,
+            on_the_way_back
+        ],
+        transitions=[t0, t_next, t_arrived, t_drop_done, t_return, t_back_home]
     )
 
     status_obj.stm = machine
     return machine, status_obj
-
 delivery_status_machine, delivery_status = create_delivery_status_machine()
 driver.add_machine(delivery_status_machine)
+
 
     
 #coordinates
@@ -355,6 +435,10 @@ destination = {'latitude' : 63.443389,
 c = 0
 coordinates = Coordinates.gps_array(destination)
 
+ 
+
+
+
 #heartbeat stm
 class Heartbeat:
     def heartbeat(self):
@@ -369,9 +453,32 @@ class Heartbeat:
                     "longitude" : float(coordinates["longitude"][c])}
         }
         self.stm.client.publish("09/heartbeat", json.dumps(heartbeat_data))
-        c+=1
-        if c>points-1:
-            c=points-1
+        
+# Testing the coordinates
+
+        # move only when ON THE WAY
+        if delivery_status.status == "On the way":
+            c += 1
+            if c >= points - 1:
+                c = points - 1
+                delivery_status_machine.send("arrived")
+
+        # after drop off → delivered
+        if delivery_status.status == "Drop off":
+            delivery_status_machine.send("drop_done")
+
+        # after delivered → on the way back
+        if delivery_status.status == "Delivered":
+            delivery_status_machine.send("return")
+
+        # after on the way back → waiting for job
+        if delivery_status.status == "On the way back":
+            delivery_status_machine.send("home")
+
+        
+        #c+=1
+        #if c>points-1:
+           # c=points-1
 
 def create_heartbeat_machine():
     t0 = {"source": "initial", "target": "idle"}
@@ -446,19 +553,22 @@ try:
             if event.action == "pressed":
                 # Check which direction
                 if event.direction == "up":
-                    battery_machine.send("up")
-                    delivery_status_machine.send("up")        # Delivered
+                    battery_machine.send("up")                # Up
+
                 elif event.direction == "down":
-                    battery_machine.send("down")
-                    delivery_status_machine.send("down")      # Failed
+                    battery_machine.send("down")              # Down
+                      
                 elif event.direction == "left":
-                    battery_machine.send("left")
-                    delivery_status_machine.send("left")      # Order received
+                    battery_machine.send("left")               # Left
+                       
                 elif event.direction == "right":
-                    battery_machine.send("right")
-                    delivery_status_machine.send("right")     # On the way
+                    battery_machine.send("right")              # Right
+
                 elif event.direction == "middle":
                     battery_machine.send("middle")
+                    delivery_status_machine.send("middle")
+
+                    # Here we use the On the way status deliver
 
         device = monitor.poll(timeout=0.1)
         if device is not None and device.action == 'add':
