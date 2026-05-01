@@ -5,12 +5,15 @@ import { useParams } from "react-router-dom";
 import { DroneMap } from "../operator/DroneMap";
 import type { IDronePosition } from "../api/models/IDronePosition";
 import styles from "./Drone.module.css";
+import { useState } from "react";
 export const Drone = () => {
   const { droneId } = useParams();
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
   const { data: drone } = useQuery({
     queryKey: ["drone", droneId],
     queryFn: () => ApiClient.get<IDrone>(`/drone/${droneId}`),
+    refetchInterval: autoRefresh ? 5000 : false,
   });
 
   return (
@@ -76,6 +79,16 @@ export const Drone = () => {
       </div>
 
       <div className={styles.map}>
+        <div className={styles.autoRefresh}>
+          <input
+            type="checkbox"
+            id="auto-refresh"
+            name="auto-refresh"
+            checked={autoRefresh}
+            onChange={(e) => setAutoRefresh(e.target.checked)}
+          />
+          <label htmlFor="auto-refresh">Auto-refresh</label>
+        </div>
         <DroneMap
           position={[
             {

@@ -1,12 +1,8 @@
-import { drones } from "../db/db.js";
-import type { IDrone } from "../models/droneModel.js";
-
-const DRONE_SPEED_KMH = 50; // Assume 50 km/h
-
+import { DRONE_SPEED_KMH, TRONDHEIM_COORDINATES } from "../constants.js";
 
 // function to calculate distance between two coordinates using Haversine formula
 
-function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+export function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Radius of the Earth in km
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -17,27 +13,19 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
-// Find the closest drone to the target location
-function findClosestDrone(targetLat: number, targetLng: number): IDrone | null {
-  if (drones.length === 0) return null;
-  let closestDrone = drones[0]!;
-  let minDistance = haversineDistance(closestDrone.position.latitude, closestDrone.position.longitude, targetLat, targetLng);
 
-  for (const drone of drones) {
-    const distance = haversineDistance(drone.position.latitude, drone.position.longitude, targetLat, targetLng);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestDrone = drone;
-    }
-  }
-
-  return closestDrone;
+export const timeBetweenPoints = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const distance = haversineDistance(lat1, lon1, lat2, lon2);
+  return Math.ceil(distance / DRONE_SPEED_KMH * 60); // convert to minutes
 }
-// Main function to calculate delivery time
+export const timeFromWarehouse = (targetLat: number, targetLng: number): number => {
+  const distance = haversineDistance(TRONDHEIM_COORDINATES.latitude, TRONDHEIM_COORDINATES.longitude, targetLat, targetLng);
+  return Math.ceil(distance / DRONE_SPEED_KMH * 60); // convert to minutes
+}
+
+// calculate delivery time in minutes based on distance from warehouse and drone speed
 export const calculateDeliveryTime = (targetLat: number, targetLng: number): number => {
-  const closestDrone = findClosestDrone(targetLat, targetLng);
-  if (!closestDrone) return 0; // No drones available
-  const distance = haversineDistance(closestDrone.position.latitude, closestDrone.position.longitude, targetLat, targetLng);
+  const distance = haversineDistance(TRONDHEIM_COORDINATES.latitude, TRONDHEIM_COORDINATES.longitude, targetLat, targetLng);
   const timeHours = distance / DRONE_SPEED_KMH;
   return Math.ceil(timeHours * 60); // Return in minutes, rounded up
 };

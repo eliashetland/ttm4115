@@ -1,14 +1,12 @@
-import { orders } from "../db/db.js";
+import { drones, orders } from "../db/db.js";
 import type { IOrder, IOrderHistory, IOrderInsert, IOrderLocation } from "../models/orderModel.js";
 import { deliveryQueueService } from "../services/deliveryQueueService.js";
-import { calculateDeliveryTime } from "../services/deliveryTimeService.js";
+import { haversineDistance, timeBetweenPoints, timeFromWarehouse } from "../services/deliveryTimeService.js";
 
 
 export const createOrder = (order: IOrderInsert) => {
 
     validateOrderData(order);
-
-    const deliveryTime = calculateDeliveryTime(order.target.latitude, order.target.longitude);
 
     const newOrder: IOrder = {
         id: orders.length > 0 ? orders[orders.length - 1]!.id + 1 : 1, //TODO: Assumes orders never deleted, so should be fixed
@@ -28,26 +26,65 @@ export const createOrder = (order: IOrderInsert) => {
         ],
 
         ...order,
-        deliveryTime
     };
 
     orders.push(newOrder);
     console.log(orders);
-    
+
     // Add to delivery queue for processing
     deliveryQueueService.addToQueue(newOrder);
-    
+
     return newOrder;
 };
 
 
 
 export const getAllOrders = () => {
-    return orders;
+
+    const ordersWithDeliveryTime = orders.map(order => {
+        const selectedDrone = drones.find(drone => drone.orderId === order.id);
+        if (selectedDrone) {
+            order.deliveryTime = timeBetweenPoints(
+                selectedDrone.position.latitude,
+                selectedDrone.position.longitude,
+                order.target.latitude,
+                order.target.longitude
+            )
+        } else {
+            order.deliveryTime = timeFromWarehouse(
+                order.target.latitude,
+                order.target.longitude
+            )
+        };
+        return order;
+    });
+
+
+    return ordersWithDeliveryTime;
 };
 
 export const getOrderById = (orderId: number) => {
     const order = orders.find(order => order.id === orderId);
+    if (!order) return null;
+
+    const selectedDrone = drones.find(drone => drone.orderId === orderId);
+
+
+    if (selectedDrone) {
+        order.deliveryTime = timeBetweenPoints(
+            selectedDrone.position.latitude,
+            selectedDrone.position.longitude,
+            order.target.latitude,
+            order.target.longitude
+        )
+    } else {
+        order.deliveryTime = timeFromWarehouse(
+            order.target.latitude,
+            order.target.longitude
+        )
+    };
+
+
     return order || null;
 }
 

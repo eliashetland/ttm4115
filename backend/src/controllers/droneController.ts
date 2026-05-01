@@ -1,9 +1,41 @@
-import { drones } from "../db/db.js"
+import { drones, orders } from "../db/db.js"
 import type { IDrone, IDroneInsert } from "../models/droneModel.js";
+import { timeFromWarehouse, timeBetweenPoints } from "../services/deliveryTimeService.js";
 
 
 export const getDrone = () => {
-    return drones.sort((a, b) => a.batteryLevel - b.batteryLevel);
+    return drones.map((drone) => {
+
+        let timeLeft = undefined;
+
+        console.log(drone.status);
+
+
+        const order = orders.find(order => order.id === drone.orderId);
+
+        if (order && order?.status === "In Transit") {
+            timeLeft = timeBetweenPoints(
+                drone.position.latitude,
+                drone.position.longitude,
+                order.target.latitude,
+                order.target.longitude
+            ) + timeFromWarehouse(
+                order.target.latitude,
+                order.target.longitude
+            );
+        } else {
+            timeLeft = timeFromWarehouse(
+                drone.position.latitude,
+                drone.position.longitude
+            );
+        }
+
+
+        return {
+            ...drone,
+            timeLeft: Math.ceil(timeLeft),
+        }
+    }).sort((a, b) => a.batteryLevel - b.batteryLevel);
 };
 
 export const getDroneById = (droneId: number) => {

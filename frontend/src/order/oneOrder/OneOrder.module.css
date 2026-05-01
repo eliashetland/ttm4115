@@ -54,7 +54,6 @@
   text-align: left;
 }
 
-
 .map {
   display: flex;
   flex-direction: column;
@@ -62,3 +61,11 @@
   text-align: left;
 }
 
+.autoRefresh {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+.autoRefresh input {
+  width: 20px;
+}

@@ -5,12 +5,16 @@ import { useParams } from "react-router-dom";
 import styles from "./OneOrder.module.css";
 import { TrackingHistory } from "./trackingHistory/TrackingHistory";
 import { DroneRoute } from "./map/DroneRoute";
+import { DateUtils } from "../../utils/DateUtils";
+import { useState } from "react";
 
 export const OneOrder = () => {
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const { orderId } = useParams();
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", orderId],
     queryFn: () => ApiClient.get<IOrder>(`/order/${orderId}`),
+    refetchInterval: autoRefresh ? 5000 : false,
   });
 
   if (isLoading) {
@@ -33,6 +37,16 @@ export const OneOrder = () => {
 
         <section className={`${styles.section} ${styles.map}`}>
           <h2 className={styles.header}>Drone Route</h2>
+                <div className={styles.autoRefresh}>
+        <input
+          type="checkbox"
+          id="auto-refresh"
+          name="auto-refresh"
+          checked={autoRefresh}
+          onChange={(e) => setAutoRefresh(e.target.checked)}
+        />
+        <label htmlFor="auto-refresh">Auto-refresh</label>
+      </div>
           <DroneRoute
             orderHistory={order.history}
             target={order.target}
@@ -79,7 +93,7 @@ export const OneOrder = () => {
 
           <label className={styles.label} htmlFor="deliveryTime">
             Estimated Delivery Time
-            <p className={styles.value}>{order.deliveryTime} minutes</p>
+            <p className={styles.value}>{DateUtils.timeStringFromMinutes(order.deliveryTime)}</p>
           </label>
         </section>
       </div>
