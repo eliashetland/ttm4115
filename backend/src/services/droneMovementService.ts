@@ -10,6 +10,7 @@ const BATTERY_DRAIN_PCT = 1;                       // % drained per interval (in
 
 const activeTimers   = new Map<number, NodeJS.Timeout>(); // in-flight / return timers
 const chargingTimers = new Map<number, NodeJS.Timeout>(); // per-drone charge timers
+const needsFullCharge = new Set<number>();                // drones that arrived < 50% and must reach 100% before dispatch
 
 // ─── Haversine ────────────────────────────────────────────────────────────────
 
@@ -100,8 +101,8 @@ export const startDroneDelivery = (droneId: number): void => {
 
 export const isDroneMoving = (droneId: number): boolean => activeTimers.has(droneId);
 
-/** True while a drone is doing a mandatory full-charge (arrived with < 50%). */
-export const isDroneChargingToFull = (droneId: number): boolean => chargingTimers.has(droneId);
+/** True while a drone must charge to 100% before dispatch (arrived with < 50%). */
+export const isDroneChargingToFull = (droneId: number): boolean => needsFullCharge.has(droneId);
 
 /**
  * Put every idle drone back on the charger.
@@ -207,31 +208,36 @@ function returnToBase(droneId: number): void {
 }
 
 /**
- * Plugs a drone in at the warehouse.
- * If battery < 50% on arrival, charges to 100% at CHARGE_RATE_PCT/CHARGE_INTERVAL_MS
- * and blocks the drone from dispatch until done.
- * If battery >= 50%, the drone is available for the next order immediately.
+ * Plugs a drone in at the warehouse. Always charges to 100% at 1%/30 s.
+ * If the drone arrived with < 50%, it is also added to needsFullCharge so
+ * the queue won't dispatch it until it reaches 100%.
  */
 function startCharging(drone: any): void {
     if (chargingTimers.has(drone.droneId)) return;
 
     drone.status = "charging";
 
-    if (drone.batteryLevel >= 50) {
-        // Battery is acceptable — stay plugged in but don't block dispatch
-        console.log(`Drone ${drone.droneId} at ${drone.batteryLevel}% — ready for next order`);
+    if (drone.batteryLevel < 50) {
+        needsFullCharge.add(drone.droneId);
+        console.log(`Drone ${drone.droneId} at ${drone.batteryLevel}% — must charge to 100% before next order`);
+    } else {
+        console.log(`Drone ${drone.droneId} at ${drone.batteryLevel}% — charging, available for dispatch`);
+    }
+
+    if (drone.batteryLevel >= 100) {
+        // Already full — nothing to increment
         return;
     }
 
-    // Under 50%: charge all the way to 100% before accepting new orders
-    console.log(`Drone ${drone.droneId} at ${drone.batteryLevel}% — charging to 100% before next order`);
     const interval = setInterval(async () => {
         drone.batteryLevel = Math.min(100, parseFloat((drone.batteryLevel + CHARGE_RATE_PCT).toFixed(1)));
+        console.log(`[charge] Drone ${drone.droneId} → ${drone.batteryLevel}%`);
         if (drone.batteryLevel >= 100) {
             clearInterval(interval);
             chargingTimers.delete(drone.droneId);
+            needsFullCharge.delete(drone.droneId);
             drone.status = "charging";
-            console.log(`Drone ${drone.droneId} fully charged — ready for dispatch`);
+            console.log(`Drone ${drone.droneId} fully charged — standing by`);
             const { deliveryQueueService } = await import("./deliveryQueueService.js");
             deliveryQueueService.processQueue();
         }
@@ -243,6 +249,7 @@ function startCharging(drone: any): void {
 function stopCharging(droneId: number): void {
     const t = chargingTimers.get(droneId);
     if (t) { clearInterval(t); chargingTimers.delete(droneId); }
+    needsFullCharge.delete(droneId);
 }
 
 function cancelTimer(droneId: number): void {
