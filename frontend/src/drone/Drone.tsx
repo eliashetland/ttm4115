@@ -5,6 +5,18 @@ import { useParams } from "react-router-dom";
 import { DroneMap } from "../operator/DroneMap";
 import type { IDronePosition } from "../api/models/IDronePosition";
 import styles from "./Drone.module.css";
+
+const BATTERY_SAFETY_FACTOR = 0.85;
+
+const maxRangeKm = (drone: IDrone, payloadKg: number, batteryPercent: number) => {
+  const usableEnergyWh = drone.specs.batteryCapacityWh * (batteryPercent / 100) * BATTERY_SAFETY_FACTOR;
+  const outboundPower = drone.specs.basePowerConsumptionW + drone.specs.payloadPowerCoefficient * payloadKg;
+  const returnPower = drone.specs.basePowerConsumptionW;
+  const whPerKm = (outboundPower + returnPower) / drone.specs.cruiseSpeedKmh;
+  if (whPerKm <= 0) return 0;
+  return usableEnergyWh / whPerKm;
+};
+
 export const Drone = () => {
   const { droneId } = useParams();
 
@@ -12,6 +24,9 @@ export const Drone = () => {
     queryKey: ["drone", droneId],
     queryFn: () => ApiClient.get<IDrone>(`/drone/${droneId}`),
   });
+
+  const maxPayloadRange = drone ? maxRangeKm(drone, drone.capacity.maxWeightKg, 100) : 0;
+  const currentBatteryRange = drone ? maxRangeKm(drone, drone.capacity.maxWeightKg, drone.batteryLevel) : 0;
 
   return (
     <div>
@@ -47,6 +62,45 @@ export const Drone = () => {
           <div className={styles.field}>
             <span>Status</span>
             <p>{drone?.status}</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 className={styles.header}>Specs</h2>
+
+          <div className={styles.field}>
+            <span>Battery capacity</span>
+            <p>{drone?.specs.batteryCapacityWh} Wh</p>
+          </div>
+
+          <div className={styles.field}>
+            <span>Cruise speed</span>
+            <p>{drone?.specs.cruiseSpeedKmh} km/h</p>
+          </div>
+
+          <div className={styles.field}>
+            <span>Base power draw</span>
+            <p>{drone?.specs.basePowerConsumptionW} W</p>
+          </div>
+
+          <div className={styles.field}>
+            <span>Payload power coefficient</span>
+            <p>{drone?.specs.payloadPowerCoefficient} W/kg</p>
+          </div>
+
+          <div className={styles.field}>
+            <span>Max payload</span>
+            <p>{drone?.capacity.maxWeightKg} kg</p>
+          </div>
+
+          <div className={styles.field}>
+            <span>Max range (full battery, max payload)</span>
+            <p>{maxPayloadRange.toFixed(1)} km</p>
+          </div>
+
+          <div className={styles.field}>
+            <span>Range now (current battery, max payload)</span>
+            <p>{currentBatteryRange.toFixed(1)} km</p>
           </div>
         </section>
 

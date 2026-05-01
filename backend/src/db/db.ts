@@ -1,6 +1,11 @@
 import type { IDrone } from "../models/droneModel.js";
 import type { IOrder, IOrderHistory } from "../models/orderModel.js";
 
+export const WAREHOUSE_LOCATION = {
+    latitude: 63.415808,
+    longitude: 10.406744,
+    description: "Warehouse",
+};
 
 export const drones: IDrone[] = [
     {
@@ -16,18 +21,21 @@ export const drones: IDrone[] = [
             altitude: 100,
             timestamp: new Date().toISOString(),
         },
-        maxCapacity: {
-            length: 100,
-            width: 100,
-            height: 100,
-            weight: 10,
-            maxWeight: 10,
-            maxVolume: 1000000,
-            currentLoad: 0,
-            currentOrders: []
+        capacity: {
+            maxWeightKg: 10,
+            maxVolumeCm3: 1_000_000,
         },
-        status: "idle"
-
+        load: {
+            currentWeightKg: 0,
+            currentOrderIds: [],
+        },
+        specs: {
+            batteryCapacityWh: 1200,
+            cruiseSpeedKmh: 40,
+            basePowerConsumptionW: 500,
+            payloadPowerCoefficient: 35,
+        },
+        status: "idle",
     },
     {
         droneId: 2,
@@ -41,18 +49,21 @@ export const drones: IDrone[] = [
             altitude: 150,
             timestamp: new Date().toISOString(),
         },
-        maxCapacity: { //cm
-            length: 50,
-            width: 50,
-            height: 300,
-            weight: 15,
-            maxWeight: 15,
-            maxVolume: 750000,
-            currentLoad: 0,
-            currentOrders: []
-        }
-        ,
-        status: "in-flight"
+        capacity: {
+            maxWeightKg: 15,
+            maxVolumeCm3: 750_000,
+        },
+        load: {
+            currentWeightKg: 0,
+            currentOrderIds: [],
+        },
+        specs: {
+            batteryCapacityWh: 2500,
+            cruiseSpeedKmh: 50,
+            basePowerConsumptionW: 600,
+            payloadPowerCoefficient: 30,
+        },
+        status: "in-flight",
     },
     {
         droneId: 3,
@@ -66,19 +77,23 @@ export const drones: IDrone[] = [
             altitude: 200,
             timestamp: new Date().toISOString(),
         },
-        maxCapacity: { //cm
-            length: 200,
-            width: 200,
-            height: 200,
-            weight: 25,
-            maxWeight: 25,
-            maxVolume: 8000000,
-            currentLoad: 0,
-            currentOrders: []
+        capacity: {
+            maxWeightKg: 25,
+            maxVolumeCm3: 8_000_000,
         },
-        status: "charging"
-    }
-]
+        load: {
+            currentWeightKg: 0,
+            currentOrderIds: [],
+        },
+        specs: {
+            batteryCapacityWh: 6000,
+            cruiseSpeedKmh: 60,
+            basePowerConsumptionW: 800,
+            payloadPowerCoefficient: 32,
+        },
+        status: "charging",
+    },
+];
 
 function makePath(start: { latitude: number; longitude: number }, end: { latitude: number; longitude: number }, points = 10) {
     const path = [];
@@ -113,6 +128,7 @@ export const orders: IOrder[] = [
         height: 2,
         weight: 1.5,
         deliveryTime: 30,
+        deliveryMethod: "drone",
         target: {
             latitude: 63.394284,
             longitude: 10.419027,

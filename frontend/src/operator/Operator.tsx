@@ -72,10 +72,9 @@ export const Operator = () => {
                 </td>
 
                 <td>
-                  {drone.maxCapacity.length}x{drone.maxCapacity.width}x
-                  {drone.maxCapacity.height}
+                  {drone.capacity.maxVolumeCm3.toLocaleString()}
                 </td>
-                <td>{drone.maxCapacity.weight}</td>
+                <td>{drone.capacity.maxWeightKg}</td>
                 <td>{drone.status}</td>
               </tr>
             ))}

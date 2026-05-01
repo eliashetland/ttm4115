@@ -1,14 +1,50 @@
-import { orders } from "../db/db.js";
+import { drones, orders, WAREHOUSE_LOCATION } from "../db/db.js";
 import type { IOrder, IOrderHistory, IOrderInsert, IOrderLocation } from "../models/orderModel.js";
 import { deliveryQueueService } from "../services/deliveryQueueService.js";
 import { calculateDeliveryTime } from "../services/deliveryTimeService.js";
+import {
+    calculateMaxRangeKm,
+    distanceFromWarehouseKm,
+    isOrderDroneDeliverable,
+} from "../services/droneCapacityService.js";
 
+const CAR_AVERAGE_SPEED_KMH = 50;
+// Surface a structured outcome alongside the new order so the API can show a notice
+// (e.g. "Out of drone range — will be delivered by car") on the create-order screen.
+export interface CreateOrderResult {
+    order: IOrder;
+    deliveryMethod: "drone" | "car";
+    notice?: string | undefined;
+}
 
-export const createOrder = (order: IOrderInsert) => {
+export const createOrder = (order: IOrderInsert): CreateOrderResult => {
 
     validateOrderData(order);
 
     const deliveryTime = calculateDeliveryTime(order.target.latitude, order.target.longitude);
+    const distanceKm = distanceFromWarehouseKm(order.target);
+
+    // Best (longest-range) drone capable of carrying this weight at full battery —
+    // used purely to explain the limit to the user when no drone fits.
+    const bestRangeKm = drones.length
+        ? Math.max(...drones.map((d) => calculateMaxRangeKm(d, order.weight, 100)))
+        : 0;
+
+    const droneDeliverable = isOrderDroneDeliverable(drones, { ...order } as IOrder);
+    const deliveryMethod: "drone" | "car" = droneDeliverable ? "drone" : "car";
+
+    let deliveryNotice: string | undefined;
+    if (!droneDeliverable) {
+        deliveryNotice =
+            `Destination is ${distanceKm.toFixed(1)} km from the warehouse, ` +
+            `but no drone can fulfill a ${order.weight} kg payload over that distance ` +
+            `(longest reach: ${bestRangeKm.toFixed(1)} km). ` +
+            `Order will be delivered by car instead.`;
+    }
+
+    // For car deliveries, override the upfront drone-time estimate with a road-time estimate.
+    const carDeliveryTime = Math.ceil((distanceKm / CAR_AVERAGE_SPEED_KMH) * 60);
+    const finalDeliveryTime = droneDeliverable ? deliveryTime : carDeliveryTime;
 
     const newOrder: IOrder = {
         id: orders.length > 0 ? orders[orders.length - 1]!.id + 1 : 1, //TODO: Assumes orders never deleted, so should be fixed
@@ -18,26 +54,40 @@ export const createOrder = (order: IOrderInsert) => {
                 createdAt: new Date(),
                 status: "Created",
                 location: {
-                    latitude: 63.415808,
-                    longitude: 10.406744,
-                    description: "Warehouse"
+                    latitude: WAREHOUSE_LOCATION.latitude,
+                    longitude: WAREHOUSE_LOCATION.longitude,
+                    description: WAREHOUSE_LOCATION.description,
                 },
                 type: "status",
-                message: "Order created and ready for processing"
+                message: droneDeliverable
+                    ? "Order created and ready for processing"
+                    : `Order created — ${deliveryNotice}`,
             },
         ],
 
         ...order,
-        deliveryTime
+        deliveryTime: finalDeliveryTime,
+        deliveryMethod,
+        deliveryNotice,
     };
 
     orders.push(newOrder);
     console.log(orders);
-    
-    // Add to delivery queue for processing
-    deliveryQueueService.addToQueue(newOrder);
-    
-    return newOrder;
+
+    if (droneDeliverable) {
+        // Add to delivery queue for processing
+        deliveryQueueService.addToQueue(newOrder);
+    } else {
+        console.warn(
+            `Order ${newOrder.id} dispatched to car: ${deliveryNotice}`,
+        );
+    }
+
+    return {
+        order: newOrder,
+        deliveryMethod,
+        notice: deliveryNotice,
+    };
 };
 
 

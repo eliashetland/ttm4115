@@ -107,21 +107,20 @@ class DeliveryQueueService {
     private async findAvailableDroneForOrder(order: IOrder) {
         // Import dynamically to avoid circular dependencies
         const { getDrone } = await import("../controllers/droneController.js");
-        const { canDroneCarryOrder } = await import("../services/droneCapacityService.js");
-        
+        const { canDroneFulfillOrder } = await import("../services/droneCapacityService.js");
+
         const drones = getDrone();
-        
+
         // Find a drone that:
         // 1. Has enough battery (e.g., > 20%)
-        // 2. Has enough capacity for the order
-        // 3. Is not already assigned to a critical task (you might need to track drone availability)
-        
-        const availableDrones = drones.filter(drone => 
+        // 2. Has enough capacity AND range to reach the destination + return
+        // 3. Is not already assigned to a critical task
+        const availableDrones = drones.filter(drone =>
             drone.batteryLevel > 20 && // Minimum battery threshold
             drone.status === 'idle' &&
-            canDroneCarryOrder(drone, order)
+            canDroneFulfillOrder(drone, order)
         );
-        
+
         // For now, just return the first available drone
         // You could implement more sophisticated selection (closest, most efficient, etc.)
         return availableDrones[0] || null;
@@ -131,13 +130,17 @@ class DeliveryQueueService {
     private async startDelivery(queuedDelivery: IQueuedDelivery, drone: any) {
         // Here you would integrate with your existing delivery logic
         // This might involve updating order status, drone position, etc.
-        
+
         const { updateOrderStatus } = await import("../controllers/orderController.js");
-        const { assignOrderToDrone } = await import("../services/droneCapacityService.js");
-        
+        const { assignOrderToDrone, estimateExecutionTimeMin } = await import("../services/droneCapacityService.js");
+
         // Assign the order to the drone (update capacity and status)
         assignOrderToDrone(drone, queuedDelivery.order);
-        
+
+        // Per-drone execution-time estimate (round trip + handling overhead)
+        const etaMin = estimateExecutionTimeMin(drone, queuedDelivery.order);
+        queuedDelivery.order.deliveryTime = etaMin;
+
         // Update order status to indicate it's being processed
         updateOrderStatus(
             queuedDelivery.order.id,
@@ -147,9 +150,11 @@ class DeliveryQueueService {
                 longitude: drone.position.longitude,
                 description: `Assigned to drone ${drone.name}`
             },
-            `Order assigned to drone ${drone.name} from queue`
+            `Order assigned to drone ${drone.name} — estimated execution time ~${etaMin} min`
         );
-        
+
+        console.log(`Drone ${drone.name} assigned to order ${queuedDelivery.order.id}; ETA ${etaMin} min`);
+
         // Trigger the actual delivery process (you might have a separate service for this)
         // This could call your existing delivery logic or trigger a WebSocket event
     }

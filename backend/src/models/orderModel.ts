@@ -1,3 +1,5 @@
+export type DeliveryMethod = "drone" | "car";
+
 export interface IOrder {
     id: number;
     sender: string;
@@ -13,6 +15,8 @@ export interface IOrder {
     history: IOrderHistory[];
     target: IOrderLocation;
     deliveryTime: number; // in minutes
+    deliveryMethod: DeliveryMethod;
+    deliveryNotice?: string | undefined; // human-readable explanation, e.g. why a car was chosen
 }
 
 
@@ -30,4 +34,5 @@ export interface IOrderLocation {
     description: string;
 }
 
-export interface IOrderInsert extends Omit<IOrder, "id" | "history" | "deliveryTime"> { }
+export interface IOrderInsert
+    extends Omit<IOrder, "id" | "history" | "deliveryTime" | "deliveryMethod" | "deliveryNotice"> { }

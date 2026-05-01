@@ -5,6 +5,14 @@ import cors from "cors";
 import dronePositionRouter from "./src/routers/dronePositionRouter.js";
 import droneRouter from "./src/routers/droneRouter.js";
 import orderRouter from "./src/routers/orderRouter.js";
+<<<<<<< Updated upstream
+=======
+import dotenv from "dotenv";
+import mqttRouter from "./src/routers/mqtt/mqttRouter.js";
+import { client } from "./src/controllers/mqttController.js";
+
+dotenv.config();
+>>>>>>> Stashed changes
 
 //express setup
 const app = express();
@@ -31,9 +39,6 @@ app.listen(3000, (err) => {
   const status = !err ? "Success" : "Failed";
   console.log(`Express listen status: ${status} ${err}`);
 });
-
-import mqttRouter from "./src/routers/mqtt/mqttRouter.js";
-import { client } from "./src/controllers/mqttController.js";
 // Starts MQTT endpoints
 if (process.env.MQTT_DEBUG) console.log("MQTT DEBUG ON");
 client.on("message", (topic, payload) => {
@@ -42,6 +47,6 @@ client.on("message", (topic, payload) => {
   try {
     mqttRouter(topic, payload);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 });

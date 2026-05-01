@@ -1,11 +1,11 @@
+// Static, hardware-defined capacity limits for a drone.
 export interface IDroneCapacity {
-    maxWeight: number;      // kg
-    maxVolume: number;      // cubic centimeters
-    currentLoad: number;    // kg
-    currentOrders: number[];
+    maxWeightKg: number;     // max payload weight
+    maxVolumeCm3: number;    // max compartment volume
+}
 
-    weight: number;         // kg
-    length: number;         // cm
-    width: number;          // cm
-    height: number;         // cm
+// Mutable state: what the drone is currently carrying.
+export interface IDroneLoad {
+    currentWeightKg: number;
+    currentOrderIds: number[];
 }

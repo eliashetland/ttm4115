@@ -91,7 +91,7 @@ export class ApiClient {
 		}
 
 		const response = await fetch(
-			`http://localhost:3000${this.baseUrl}${props.url}`, options);
+			`${this.baseUrl}${props.url}`, options);
 
 		if (!response.ok) {
 			return Promise.reject(response);

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styles from "./CreateOrder.module.css";
-import { createEmptyOrder, type IOrderInsert } from "../api/models/IOrder";
+import { createEmptyOrder, type ICreateOrderResponse, type IOrderInsert } from "../api/models/IOrder";
 import { ApiClient } from "../api/ApiClient";
 import { AllOrders } from "./allOrders/AllOrders";
 
@@ -8,6 +8,7 @@ export const CreateOrder = () => {
   const [formData, setFormData] = useState<IOrderInsert>(createEmptyOrder());
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [deliveryTime, setDeliveryTime] = useState<number | null>(null);
+  const [orderResult, setOrderResult] = useState<ICreateOrderResponse | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,6 +28,7 @@ export const CreateOrder = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setOrderResult(null);
 
     const address = `${formData.address}, ${formData.zip} ${formData.city}`;
 
@@ -47,23 +49,21 @@ export const CreateOrder = () => {
 
     // Get delivery time estimate
     // TODO: Is there suppose to be more than deliveryTime in the result?
-    const timeRes: {deliveryTime: number} = await ApiClient.post("/order/estimate-time", [], { latitude: lat, longitude: lng });
+    const timeRes: { deliveryTime: number } = await ApiClient.post("/order/estimate-time", [], { latitude: lat, longitude: lng });
     setDeliveryTime(timeRes.deliveryTime);
 
-    ApiClient.post("/order", ["order"], {
-      ...formData,
-      target: { latitude: lat, longitude: lng, description: address },
-    })
-      .then((createdOrder) => {
-        console.log("Created order", createdOrder);
-        setFormData(createEmptyOrder());
-        setCoordinates(null);
-        setDeliveryTime(null);
-      })
-      .catch((err) => {
-        alert("Failed to create order");
-        console.error("Failed to create order", err);
+    try {
+      const created = await ApiClient.post<ICreateOrderResponse>("/order", ["order"], {
+        ...formData,
+        target: { latitude: lat, longitude: lng, description: address },
       });
+      console.log("Created order", created);
+      setOrderResult(created);
+      setFormData(createEmptyOrder());
+    } catch (err) {
+      alert("Failed to create order");
+      console.error("Failed to create order", err);
+    }
   };
 
   return (
@@ -193,12 +193,27 @@ export const CreateOrder = () => {
 
           <button type="submit">Create order</button>
         </form>
-        
+
         {coordinates && deliveryTime && (
           <div className={styles.deliveryInfo}>
             <h3>Delivery Information</h3>
             <p>Coordinates: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}</p>
             <p>Estimated delivery time: {Math.ceil(deliveryTime * 60)} minutes</p>
+          </div>
+        )}
+
+        {orderResult && (
+          <div
+            className={`${styles.deliveryInfo} ${orderResult.deliveryMethod === "car" ? styles.warning : styles.success}`}
+          >
+            <h3>
+              {orderResult.deliveryMethod === "car"
+                ? "Order created — delivery by car"
+                : "Order created — drone delivery queued"}
+            </h3>
+            <p>Order #{orderResult.order.id}</p>
+            <p>Estimated time: {orderResult.order.deliveryTime} minutes</p>
+            {orderResult.notice && <p>{orderResult.notice}</p>}
           </div>
         )}
 

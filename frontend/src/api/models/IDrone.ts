@@ -7,16 +7,29 @@ export interface IDrone {
     manufacturer: string;
     position: IDronePosition;
     batteryLevel: number;
-    maxCapacity: IDroneCapacity;
+    capacity: IDroneCapacity;
+    load: IDroneLoad;
+    specs: IDroneSpecs;
     status: DroneStatus;
+    orderId?: number;
 }
 
 export interface IDroneInsert extends Omit<IDrone, "droneId"> { }
 
 export type DroneStatus = "idle" | "in-flight" | "charging";
 export interface IDroneCapacity {
-    length: number;
-    width: number;
-    height: number;
-    weight: number;
+    maxWeightKg: number;
+    maxVolumeCm3: number;
+}
+
+export interface IDroneLoad {
+    currentWeightKg: number;
+    currentOrderIds: number[];
+}
+
+export interface IDroneSpecs {
+    batteryCapacityWh: number;
+    cruiseSpeedKmh: number;
+    basePowerConsumptionW: number;
+    payloadPowerCoefficient: number;
 }

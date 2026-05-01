@@ -99,6 +99,18 @@ button:hover {
   margin: 0.25rem 0;
 }
 
+.success {
+  background-color: #e6f4ea;
+  border-color: #b7e0c2;
+  color: #1f5132;
+}
+
+.warning {
+  background-color: #fff4d6;
+  border-color: #f3d27a;
+  color: #6a4b00;
+}
+
 @media screen and (max-width: 500px) {
   .container {
     padding: 1rem;

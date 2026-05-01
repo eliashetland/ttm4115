@@ -8,8 +8,17 @@ orderRouter.post("/", (req, res) => {
     const newOrderData = req.body;
 
     try {
-        const createdOrder = createOrder(newOrderData);
-        return res.status(201).json({ message: "Order created successfully", order: createdOrder });
+        const result = createOrder(newOrderData);
+        const message =
+            result.deliveryMethod === "drone"
+                ? "Order created successfully"
+                : result.notice ?? "Order created — out of drone range, will be delivered by car";
+        return res.status(201).json({
+            message,
+            order: result.order,
+            deliveryMethod: result.deliveryMethod,
+            notice: result.notice,
+        });
 
     } catch (error) {
         if (!(error instanceof Error)) {

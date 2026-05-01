@@ -18,6 +18,10 @@ export const createDrone = (droneData: IDroneInsert) => {
         droneId: drones.length + 1,
         batteryLevel: droneData.batteryLevel ?? 100,
         status: droneData.status ?? "idle",
+        load: droneData.load ?? {
+            currentWeightKg: 0,
+            currentOrderIds: [],
+        },
         ...droneData
     }
     newDrone.droneId = drones.length + 1;
