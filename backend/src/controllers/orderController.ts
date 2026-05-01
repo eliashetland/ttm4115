@@ -18,8 +18,8 @@ export const createOrder = (order: IOrderInsert) => {
                 createdAt: new Date(),
                 status: "Created",
                 location: {
-                    latitude: 63.415808,
-                    longitude: 10.406744,
+                    latitude: 63.415777440500655,
+                    longitude: 10.406715511683895,
                     description: "Warehouse"
                 },
                 type: "status",
@@ -66,7 +66,7 @@ export const updateOrderStatus = (orderId: number, status: string, location: IOr
         message,
         type: "status"
     };
-    order.history.unshift(newHistoryEntry);
+    order.history.push(newHistoryEntry);
     return order;
 }
 

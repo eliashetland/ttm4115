@@ -16,11 +16,9 @@ class DeliveryQueueService {
     private isProcessing = false;
 
     constructor() {
-        // Start processing the queue every 30 seconds
         this.startProcessing();
     }
 
-    // Add an order to the queue
     addToQueue(order: IOrder, priority: number = 1): IQueuedDelivery {
         const queuedDelivery: IQueuedDelivery = {
             id: `queue_${Date.now()}_${order.id}`,
@@ -30,7 +28,6 @@ class DeliveryQueueService {
             status: 'queued'
         };
 
-        // Insert in priority order (higher priority first)
         const insertIndex = this.queue.findIndex(item => item.priority < priority);
         if (insertIndex === -1) {
             this.queue.push(queuedDelivery);
@@ -38,11 +35,19 @@ class DeliveryQueueService {
             this.queue.splice(insertIndex, 0, queuedDelivery);
         }
 
+        order.history.push({
+            createdAt: new Date(),
+            status: "Order in queue",
+            type: "status",
+            location: order.history[0]?.location ?? { latitude: 63.415777440500655, longitude: 10.406715511683895, description: "Warehouse" },
+            message: "Order is waiting in the delivery queue"
+        });
+
         console.log(`Order ${order.id} added to delivery queue. Queue size: ${this.queue.length}`);
+        this.processQueue();
         return queuedDelivery;
     }
 
-    // Get current queue status
     getQueueStatus() {
         return {
             queueLength: this.queue.length,
@@ -56,7 +61,6 @@ class DeliveryQueueService {
         };
     }
 
-    // Remove from queue (e.g., when delivered or cancelled)
     removeFromQueue(queueId: string): boolean {
         const index = this.queue.findIndex(item => item.id === queueId);
         if (index !== -1) {
@@ -66,35 +70,29 @@ class DeliveryQueueService {
         return false;
     }
 
-    // Process the queue (check for available drones and assign deliveries)
-    private async processQueue() {
-        if (this.isProcessing || this.queue.length === 0) {
-            return;
-        }
+    public async processQueue() {
+        if (this.isProcessing) return;
 
         this.isProcessing = true;
 
         try {
-            // Get queued items that are ready for processing
             const queuedItems = this.queue.filter(item => item.status === 'queued');
-            
+
             for (const queuedItem of queuedItems) {
-                // Here you would check if a drone is available
                 const availableDrone = await this.findAvailableDroneForOrder(queuedItem.order);
-                
                 if (availableDrone) {
-                    // Assign drone to delivery
                     queuedItem.status = 'processing';
                     queuedItem.assignedDroneId = availableDrone.droneId;
-                    
                     console.log(`Assigning order ${queuedItem.order.id} to drone ${availableDrone.droneId}`);
-                    
-                    // Trigger the delivery process
                     await this.startDelivery(queuedItem, availableDrone);
-                    
-                    // Remove from queue after successful assignment
                     this.removeFromQueue(queuedItem.id);
                 }
+            }
+
+            const pendingOrders = this.queue.filter(item => item.status === 'queued').length;
+            if (pendingOrders === 0) {
+                const { chargeIdleDronesAtWarehouse } = await import("../services/droneMovementService.js");
+                chargeIdleDronesAtWarehouse();
             }
         } catch (error) {
             console.error('Error processing delivery queue:', error);
@@ -103,69 +101,53 @@ class DeliveryQueueService {
         }
     }
 
-    // Find an available drone for the order
     private async findAvailableDroneForOrder(order: IOrder) {
-        // Import dynamically to avoid circular dependencies
         const { getDrone } = await import("../controllers/droneController.js");
         const { canDroneCarryOrder } = await import("../services/droneCapacityService.js");
-        
+        const { isDroneChargingToFull } = await import("../services/droneMovementService.js");
+
         const drones = getDrone();
-        
-        // Find a drone that:
-        // 1. Has enough battery (e.g., > 20%)
-        // 2. Has enough capacity for the order
-        // 3. Is not already assigned to a critical task (you might need to track drone availability)
-        
-        const availableDrones = drones.filter(drone => 
-            drone.batteryLevel > 20 && // Minimum battery threshold
-            drone.status === 'idle' &&
+
+        const availableDrones = drones.filter(drone =>
+            drone.batteryLevel > 20 &&
+            (drone.status === 'idle' || drone.status === 'charging') &&
+            !isDroneChargingToFull(drone.droneId) &&
             canDroneCarryOrder(drone, order)
         );
-        
-        // For now, just return the first available drone
-        // You could implement more sophisticated selection (closest, most efficient, etc.)
+
         return availableDrones[0] || null;
     }
 
-    // Start the actual delivery process
     private async startDelivery(queuedDelivery: IQueuedDelivery, drone: any) {
-        // Here you would integrate with your existing delivery logic
-        // This might involve updating order status, drone position, etc.
-        
         const { updateOrderStatus } = await import("../controllers/orderController.js");
         const { assignOrderToDrone } = await import("../services/droneCapacityService.js");
-        
-        // Assign the order to the drone (update capacity and status)
+
         assignOrderToDrone(drone, queuedDelivery.order);
-        
-        // Update order status to indicate it's being processed
+
         updateOrderStatus(
             queuedDelivery.order.id,
-            "Assigned to Drone",
+            "Drone assigned",
             {
                 latitude: drone.position.latitude,
                 longitude: drone.position.longitude,
                 description: `Assigned to drone ${drone.name}`
             },
-            `Order assigned to drone ${drone.name} from queue`
+            `Order assigned to drone ${drone.name}`
         );
-        
-        // Trigger the actual delivery process (you might have a separate service for this)
-        // This could call your existing delivery logic or trigger a WebSocket event
+
+        const { startDroneDelivery } = await import("./droneMovementService.js");
+        startDroneDelivery(drone.droneId);
     }
 
-    // Start the queue processor
     startProcessing() {
         if (this.processingInterval) {
             clearInterval(this.processingInterval);
         }
-        
         this.processingInterval = setInterval(() => {
             this.processQueue();
-        }, 30000); // Process every 30 seconds
+        }, 30000);
     }
 
-    // Stop the queue processor (useful for testing/cleanup)
     stopProcessing() {
         if (this.processingInterval) {
             clearInterval(this.processingInterval);
@@ -174,5 +156,4 @@ class DeliveryQueueService {
     }
 }
 
-// Export a singleton instance
 export const deliveryQueueService = new DeliveryQueueService();

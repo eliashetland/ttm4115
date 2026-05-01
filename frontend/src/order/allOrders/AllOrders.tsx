@@ -9,6 +9,7 @@ export const AllOrders = () => {
   const { data: orders } = useQuery({
     queryKey: ["order"],
     queryFn: () => ApiClient.get<IOrder[]>("/order"),
+    refetchInterval: 2000,
   });
 
   return (
@@ -29,7 +30,9 @@ export const AllOrders = () => {
         </tr>
       </thead>
       <tbody>
-        {orders?.map((order) => (
+        {orders?.map((order) => {
+          const latestStatus = [...order.history].reverse().find(h => h.type === "status") ?? order.history[0];
+          return (
           <tr key={order.id}>
             <td>
               <Link to={`/orders/${order.id}`}>{order.id}</Link>
@@ -44,12 +47,10 @@ export const AllOrders = () => {
             </td>
             <td>{order.weight}</td>
             <td>{order.deliveryTime} min</td>
-            <td>{order.history[0].status}</td>
-            <td>
-              {DateUtils.format(order.history[0].createdAt, "yyyy-MM-dd HH:mm:ss")}
-            </td>
+            <td>{latestStatus.status}</td>
+            <td>{DateUtils.format(latestStatus.createdAt, "yyyy-MM-dd HH:mm:ss")}</td>
           </tr>
-        ))}
+        )})}
       </tbody>
     </table>
   );

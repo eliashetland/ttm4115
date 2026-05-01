@@ -35,6 +35,19 @@ app.listen(3000, (err) => {
 
 import mqttRouter from "./src/routers/mqtt/mqttRouter.js";
 import { client } from "./src/controllers/mqttController.js";
+import { startBatteryDrainTimer, resumeChargingDrones } from "./src/services/droneMovementService.js";
+import { deliveryQueueService } from "./src/services/deliveryQueueService.js";
+import { orders } from "./src/db/db.js";
+startBatteryDrainTimer();
+resumeChargingDrones();
+
+// Enqueue all default orders at startup with a short stagger so drones are ready
+orders.forEach((order, index) => {
+  setTimeout(() => {
+    deliveryQueueService.addToQueue(order, 1);
+    console.log(`Enqueued default order ${order.id} (${order.firstName} ${order.lastName})`);
+  }, 2000 + index * 500);
+});
 // Starts MQTT endpoints
 if (process.env.MQTT_DEBUG) console.log("MQTT DEBUG ON");
 client.on("message", (topic, payload) => {

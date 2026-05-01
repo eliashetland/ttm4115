@@ -13,6 +13,9 @@ export const assignOrderToDrone = (drone: IDrone, order: IOrder): void => {
     drone.maxCapacity.currentLoad += order.weight;
     drone.maxCapacity.currentOrders.push(order.id);
     drone.status = "in-flight";
+    drone.orderId = order.id;
+    drone.destination = order.target;
+    drone.departureTime = Date.now();
 };
 
 export const releaseOrderFromDrone = (drone: IDrone, order: IOrder): void => {

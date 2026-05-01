@@ -1,13 +1,9 @@
-import { drones } from "../db/db.js";
-import type { IDrone } from "../models/droneModel.js";
-
-const DRONE_SPEED_KMH = 50; // Assume 50 km/h
-
-
-// function to calculate distance between two coordinates using Haversine formula
+const DRONE_SPEED_KMH = 50;
+const WAREHOUSE_LAT = 63.415777440500655;
+const WAREHOUSE_LON = 10.406715511683895;
 
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Radius of the Earth in km
+  const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -17,27 +13,7 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
-// Find the closest drone to the target location
-function findClosestDrone(targetLat: number, targetLng: number): IDrone | null {
-  if (drones.length === 0) return null;
-  let closestDrone = drones[0]!;
-  let minDistance = haversineDistance(closestDrone.position.latitude, closestDrone.position.longitude, targetLat, targetLng);
-
-  for (const drone of drones) {
-    const distance = haversineDistance(drone.position.latitude, drone.position.longitude, targetLat, targetLng);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestDrone = drone;
-    }
-  }
-
-  return closestDrone;
-}
-// Main function to calculate delivery time
-export const calculateDeliveryTime = (targetLat: number, targetLng: number): number => {
-  const closestDrone = findClosestDrone(targetLat, targetLng);
-  if (!closestDrone) return 0; // No drones available
-  const distance = haversineDistance(closestDrone.position.latitude, closestDrone.position.longitude, targetLat, targetLng);
-  const timeHours = distance / DRONE_SPEED_KMH;
-  return Math.ceil(timeHours * 60); // Return in minutes, rounded up
+export const calculateDeliveryTime = (targetLat: number, targetLon: number): number => {
+  const distanceKm = haversineDistance(WAREHOUSE_LAT, WAREHOUSE_LON, targetLat, targetLon);
+  return Math.ceil((distanceKm / DRONE_SPEED_KMH) * 60);
 };

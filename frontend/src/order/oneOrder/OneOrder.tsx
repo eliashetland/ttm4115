@@ -11,6 +11,7 @@ export const OneOrder = () => {
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", orderId],
     queryFn: () => ApiClient.get<IOrder>(`/order/${orderId}`),
+    refetchInterval: 2000,
   });
 
   if (isLoading) {

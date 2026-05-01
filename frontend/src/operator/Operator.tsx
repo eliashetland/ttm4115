@@ -8,11 +8,11 @@ import type { IDronePosition } from "../api/models/IDronePosition";
 import { useState } from "react";
 
 export const Operator = () => {
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const { data: drones } = useQuery({
     queryKey: ["drones"],
     queryFn: () => ApiClient.get<IDrone[]>("/drone"),
-    refetchInterval: autoRefresh ? 5000 : false,
+    refetchInterval: autoRefresh ? 2000 : false,
   });
 
   return (
