@@ -15,7 +15,7 @@ export function heartbeatMQTT(topic: string, message: string) {
     longitude: gps.longitude,
     altitude: 100,
     timestamp: timestamp,
-  });
+  }, state);
 
   if (process.env.MQTT_DEBUG) console.log(res);
 }
