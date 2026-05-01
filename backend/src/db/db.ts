@@ -20,7 +20,11 @@ export const drones: IDrone[] = [
             length: 100,
             width: 100,
             height: 100,
-            weight: 10
+            weight: 10,
+            maxWeight: 10,
+            maxVolume: 1000000,
+            currentLoad: 0,
+            currentOrders: []
         },
         status: "idle"
 
@@ -41,7 +45,11 @@ export const drones: IDrone[] = [
             length: 50,
             width: 50,
             height: 300,
-            weight: 15
+            weight: 15,
+            maxWeight: 15,
+            maxVolume: 750000,
+            currentLoad: 0,
+            currentOrders: []
         }
         ,
         status: "in-flight"
@@ -62,7 +70,11 @@ export const drones: IDrone[] = [
             length: 200,
             width: 200,
             height: 200,
-            weight: 25
+            weight: 25,
+            maxWeight: 25,
+            maxVolume: 8000000,
+            currentLoad: 0,
+            currentOrders: []
         },
         status: "charging"
     }
