@@ -33,6 +33,7 @@ c1 = (255, 0, 0)
 c0 = (0, 0, 0)
 blue = (0, 0, 255)
 pink = (255, 0, 255)
+white = (255, 255, 255)
 
 def led_id(colour):
     sense.set_pixel(4,1,colour)
@@ -45,7 +46,7 @@ def led_id(colour):
     sense.set_pixel(4,6,colour)
     sense.set_pixel(5,6,colour)
 
-led_id(pink)
+led_id(white)
 
 class Battery:
     def __init__(self, sense):
@@ -96,10 +97,6 @@ class Battery:
     def battery_5_off(self):
         self.level = 5
         self.led_stripe(0,c0)
-
-    def battery_0(self):
-        self.level = 0
-        self.led_stripe(8,c0)
 
 def create_battery_machine():
     t0 = {"source": "initial", "target": "battery_100"}
@@ -165,72 +162,54 @@ def create_battery_machine():
     }
 
     t11 = {
-        "trigger": "left",
+        "trigger": "right",
         "source": "battery_5_on",
-        "target": "battery_0",
+        "target": "battery_12_5",
     }
 
     t12 = {
-        "trigger": "left",
+        "trigger": "right",
         "source": "battery_5_off",
-        "target": "battery_0",
+        "target": "battery_12_5",
     }
 
     t13 = {
-        "trigger": "right",
-        "source": "battery_0",
-        "target": "battery_5_on",
-    }
-
-    t14 = {
-        "trigger": "right",
-        "source": "battery_5_on",
-        "target": "battery_12_5",
-    }
-
-    t15 = {
-        "trigger": "right",
-        "source": "battery_5_off",
-        "target": "battery_12_5",
-    }
-
-    t16 = {
         "trigger": "right",
         "source": "battery_12_5",
         "target": "battery_25",
     }
 
-    t17 = {
+    t14 = {
         "trigger": "right",
         "source": "battery_25",
         "target": "battery_37_5",
     }
 
-    t18 = {
+    t15 = {
         "trigger": "right",
         "source": "battery_37_5",
         "target": "battery_50",
     }
 
-    t19 = {
+    t16 = {
         "trigger": "right",
         "source": "battery_50",
         "target": "battery_62_5",
     }
 
-    t20 = {
+    t17 = {
         "trigger": "right",
         "source": "battery_62_5",
         "target": "battery_75",
     }
 
-    t21 = {
+    t18 = {
         "trigger": "right",
         "source": "battery_75",
         "target": "battery_87_5",
     }
 
-    t22 = {
+    t19 = {
         "trigger": "right",
         "source": "battery_87_5",
         "target": "battery_100",
@@ -278,13 +257,9 @@ def create_battery_machine():
         'exit' : 'stop_timer("t_b")'
     }
 
-    battery_0 = {'name': 'battery_0',
-        'entry': 'battery_0'
-    }
-
     battery =  Battery(sense)
-    machine = Machine(transitions=[t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22],
-                      states=[battery_100, battery_87_5, battery_75, battery_62_5, battery_50, battery_37_5, battery_25, battery_12_5, battery_5_on, battery_5_off, battery_0],
+    machine = Machine(transitions=[t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19],
+                      states=[battery_100, battery_87_5, battery_75, battery_62_5, battery_50, battery_37_5, battery_25, battery_12_5, battery_5_on, battery_5_off],
                       obj=battery,
                       name="battery")
     battery.stm = machine
@@ -322,8 +297,8 @@ class Heartbeat:
         }
         self.stm.client.publish("09/heartbeat", json.dumps(heartbeat_data))
         c+=1
-        if c>points-1:
-            c=points-1
+        if c==points-1:
+            drone_status_machine.send("delivered")
 
 def create_heartbeat_machine():
     t0 = {"source": "initial", "target": "idle"}
