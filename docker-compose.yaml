@@ -9,7 +9,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - path: ./backend/.env
+      - path: MQTT.env
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 5s
