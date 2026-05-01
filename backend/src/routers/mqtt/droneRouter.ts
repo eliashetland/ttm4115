@@ -9,18 +9,15 @@ getDrone().forEach((drone) => {
 
 export function droneCreateMQTT(topic: string, message: string) {
   const droneDetails: {
-    nonce: number;
-    timestamp: EpochTimeStamp;
+    nonce: string;
     drone: IDrone;
   } = JSON.parse(message.toString());
 
   const nonce = droneDetails?.nonce;
 
-  const timestamp = droneDetails?.timestamp;
-
   let drone = droneDetails?.drone;
 
-  if (!drone || !nonce || !timestamp) {
+  if (!drone || !nonce) {
     return;
   }
 
@@ -32,7 +29,7 @@ export function droneCreateMQTT(topic: string, message: string) {
 
   if (process.env.MQTT_DEBUG) console.log(response);
 
-  client.publish(`drones/nonce/${nonce}/timestamp/${timestamp}/id`, response);
+  client.publish(`drones/nonce/${nonce}/id`, response);
 }
 
 export function droneAckMQTT(id: number, message: string) {
@@ -40,5 +37,5 @@ export function droneAckMQTT(id: number, message: string) {
     if (process.env.MQTT_DEBUG) console.log("Id is not valid");
     return;
   }
-  client.publish(`drones/${id}/APIAck`, JSON.stringify({ ack: 1 }));
+  client.publish(`drones/${id}/api-ack`, JSON.stringify({ ack: 1 }));
 }

@@ -33,7 +33,7 @@ export default function mqttRouter(
     case "drones/create":
       droneCreateMQTT(topic, strMessage);
       break;
-    case `drones/${id}/droneAck`:
+    case `drones/${id}/drone-ack`:
       droneAckMQTT(id, strMessage);
       break;
     case `drones/${id}/heartbeat`:
