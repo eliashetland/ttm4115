@@ -1,7 +1,7 @@
 import { client } from "../../controllers/mqttController.js";
 import { updateDroneFromHeartbeat } from "../../controllers/heartbeatController.js";
 
-const HEARTBEAT_TOPIC = "drones/+/heartbeat";
+const HEARTBEAT_TOPIC = "+/heartbeat";
 client.on("connect", () => {
   client.subscribe(HEARTBEAT_TOPIC);
 });
@@ -15,7 +15,7 @@ export function heartbeatMQTT(topic: string, message: string) {
     longitude: gps.longitude,
     altitude: 100,
     timestamp: timestamp,
-  });
+  }, state);
 
   if (process.env.MQTT_DEBUG) console.log(res);
 }

@@ -36,11 +36,12 @@ export default function mqttRouter(
     case `drones/${id}/drone-ack`:
       droneAckMQTT(id, strMessage);
       break;
-    case `drones/${id}/heartbeat`:
-      heartbeatMQTT(topic, strMessage);
-      break;
     default:
-      console.log(`No MQTT router found for topic: ${topic}`);
+      if (topic.endsWith("/heartbeat")) {
+        heartbeatMQTT(topic, strMessage);
+      } else {
+        console.log(`No MQTT router found for topic: ${topic}`);
+      }
       break;
   }
 }

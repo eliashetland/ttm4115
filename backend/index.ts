@@ -5,6 +5,7 @@ import cors from "cors";
 import dronePositionRouter from "./src/routers/dronePositionRouter.js";
 import droneRouter from "./src/routers/droneRouter.js";
 import orderRouter from "./src/routers/orderRouter.js";
+import "dotenv/config";
 
 //express setup
 const app = express();

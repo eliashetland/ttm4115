@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { ApiClient } from "../../api/ApiClient";
 import type { IOrder } from "../../api/models/IOrder";
 import styles from "./AllOrders.module.css";
@@ -31,7 +32,7 @@ export const AllOrders = () => {
         {orders?.map((order) => (
           <tr key={order.id}>
             <td>
-              <a href={`/orders/${order.id}`}>{order.id}</a>
+              <Link to={`/orders/${order.id}`}>{order.id}</Link>
             </td>
             <td>{order.firstName}</td>
             <td>{order.lastName}</td>
