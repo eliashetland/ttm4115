@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import styles from "./OneOrder.module.css";
 import { TrackingHistory } from "./trackingHistory/TrackingHistory";
 import { DroneRoute } from "./map/DroneRoute";
+import { DateUtils } from "../../utils/DateUtils";
 
 export const OneOrder = () => {
   const { orderId } = useParams();
@@ -79,7 +80,7 @@ export const OneOrder = () => {
 
           <label className={styles.label} htmlFor="deliveryTime">
             Estimated Delivery Time
-            <p className={styles.value}>{order.deliveryTime} minutes</p>
+            <p className={styles.value}>{DateUtils.timeStringFromMinutes(order.deliveryTime)}</p>
           </label>
         </section>
       </div>
