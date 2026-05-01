@@ -9,7 +9,7 @@ import { DroneRoute } from "./map/DroneRoute";
 export const OneOrder = () => {
   const { orderId } = useParams();
   const { data: order, isLoading } = useQuery({
-    queryKey: ["order"],
+    queryKey: ["order", orderId],
     queryFn: () => ApiClient.get<IOrder>(`/order/${orderId}`),
   });
 
