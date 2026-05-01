@@ -2,11 +2,16 @@ import type { IDrone } from "../models/droneModel.js";
 import type { IOrder } from "../models/orderModel.js";
 
 export const canDroneCarryOrder = (drone: IDrone, order: IOrder): boolean => {
-    const orderVolume = order.length * order.width * order.height; // Assuming cm³
     const availableWeight = drone.maxCapacity.maxWeight - drone.maxCapacity.currentLoad;
-    const availableVolume = drone.maxCapacity.maxVolume; // Assuming currentVolume not tracked, or add if needed
+    if (order.weight > availableWeight) return false;
 
-    return order.weight <= availableWeight && orderVolume <= availableVolume;
+    // Sort both dimension arrays so we check best-fit orientation automatically
+    const droneDims = [drone.maxCapacity.length, drone.maxCapacity.width, drone.maxCapacity.height]
+        .sort((a, b) => a - b);
+    const orderDims = [order.length, order.width, order.height]
+        .sort((a, b) => a - b);
+
+    return orderDims[0] <= droneDims[0] && orderDims[1] <= droneDims[1] && orderDims[2] <= droneDims[2];
 };
 
 export const assignOrderToDrone = (drone: IDrone, order: IOrder): void => {

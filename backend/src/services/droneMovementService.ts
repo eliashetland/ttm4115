@@ -105,15 +105,17 @@ export const isDroneMoving = (droneId: number): boolean => activeTimers.has(dron
 export const isDroneChargingToFull = (droneId: number): boolean => needsFullCharge.has(droneId);
 
 /**
- * Put every idle drone back on the charger.
- * Called by the queue whenever there are no pending orders.
+ * Ensure every warehouse drone is charging.
+ * Covers both "idle" drones and "charging" drones whose timer was never started
+ * (e.g. arrived at 100%, later drained slightly with no active timer).
  */
 export const chargeIdleDronesAtWarehouse = (): void => {
     for (const drone of drones) {
-        if (drone.status === "idle" && !chargingTimers.has(drone.droneId)) {
+        const atWarehouse = drone.status === "idle" || drone.status === "charging";
+        if (atWarehouse && !chargingTimers.has(drone.droneId) && drone.batteryLevel < 100) {
             drone.status = "charging";
             startCharging(drone);
-            console.log(`Drone ${drone.droneId} plugged in (${drone.batteryLevel}%)`);
+            console.log(`Drone ${drone.droneId} plugged in at ${drone.batteryLevel}%`);
         }
     }
 };

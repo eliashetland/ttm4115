@@ -4,13 +4,14 @@ import { createEmptyOrder, type IOrderInsert } from "../api/models/IOrder";
 import { ApiClient } from "../api/ApiClient";
 import { AllOrders } from "./allOrders/AllOrders";
 
-const MAX_WEIGHT_KG = 35;
+const MAX_WEIGHT_KG = 25;
 const MAX_DIM_CM = 200;
 
 export const CreateOrder = () => {
   const [formData, setFormData] = useState<IOrderInsert>(createEmptyOrder());
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [deliveryTime, setDeliveryTime] = useState<number | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const errors = {
     weight: formData.weight > MAX_WEIGHT_KG ? `Max weight is ${MAX_WEIGHT_KG} kg` : null,
@@ -24,27 +25,23 @@ export const CreateOrder = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormError(null);
   };
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const num = Number(value);
     setFormData((prev) => ({ ...prev, [name]: num }));
-
-    if (name === "weight" && num > MAX_WEIGHT_KG) {
-      alert(`Weight cannot exceed ${MAX_WEIGHT_KG} kg. Please enter a smaller value.`);
-    }
-    if ((name === "length" || name === "width" || name === "height") && num > MAX_DIM_CM) {
-      alert(`${name.charAt(0).toUpperCase() + name.slice(1)} cannot exceed ${MAX_DIM_CM} cm. Please enter a smaller value.`);
-    }
+    setFormError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormError(null);
 
     if (hasErrors) {
-      const messages = Object.values(errors).filter(Boolean).join("\n");
-      alert(`Cannot create order:\n${messages}`);
+      const messages = Object.values(errors).filter(Boolean).join(", ");
+      setFormError(`Cannot create order: ${messages}`);
       return;
     }
 
@@ -57,7 +54,13 @@ export const CreateOrder = () => {
     const data = await res.json();
 
     if (!data.features?.length) {
-      alert("No location found");
+      setFormError("No location found for this address. Please check and try again.");
+      return;
+    }
+
+    const placeName: string = data.features[0].place_name ?? "";
+    if (!placeName.toLowerCase().includes("trondheim")) {
+      setFormError("Delivery address must be in Trondheim. Orders outside Trondheim are not supported.");
       return;
     }
 
@@ -76,9 +79,10 @@ export const CreateOrder = () => {
         setFormData(createEmptyOrder());
         setCoordinates(null);
         setDeliveryTime(null);
+        setFormError(null);
       })
       .catch((err) => {
-        alert("Failed to create order");
+        setFormError("Failed to create order. Please try again.");
         console.error("Failed to create order", err);
       });
   };
@@ -214,6 +218,10 @@ export const CreateOrder = () => {
               {errors.weight && <span style={{ color: "red", fontSize: "0.8rem" }}>{errors.weight}</span>}
             </label>
           </section>
+
+          {formError && (
+            <p style={{ color: "red", fontSize: "0.9rem", margin: 0 }}>{formError}</p>
+          )}
 
           <button type="submit" disabled={hasErrors}>
             Create order
