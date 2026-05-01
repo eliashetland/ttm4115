@@ -34,14 +34,14 @@ export const Operator = () => {
             <tr>
               <th>ID</th>
               <th>battery</th>
+              <th>status</th>
+              <th>last update</th>
+              <th>time left</th>
               <th>name</th>
               <th>model</th>
               <th>manufacturer</th>
-              <th>position</th>
-              <th>last update</th>
               <th>max (cm)</th>
               <th>max (kg)</th>
-              <th>status</th>
             </tr>
           </thead>
           <tbody>
@@ -61,22 +61,21 @@ export const Operator = () => {
                 >
                   {drone.batteryLevel}%
                 </td>
-                <td>{drone.name}</td>
-                <td>{drone.model}</td>
-                <td>{drone.manufacturer}</td>
-                <td>
-                  {drone.position.latitude}, {drone.position.longitude}
-                </td>
+                <td>{drone.status}</td>
                 <td>
                   {DateUtils.format(drone.position.timestamp, "HH:mm:ss")}
                 </td>
+                <td>{drone.timeLeft !== undefined ? `${DateUtils.timeStringFromMinutes(drone.timeLeft)}` : "N/A"}</td>
+                <td>{drone.name}</td>
+                <td>{drone.model}</td>
+                <td>{drone.manufacturer}</td>
+
 
                 <td>
                   {drone.maxCapacity.length}x{drone.maxCapacity.width}x
                   {drone.maxCapacity.height}
                 </td>
                 <td>{drone.maxCapacity.weight}</td>
-                <td>{drone.status}</td>
               </tr>
             ))}
           </tbody>

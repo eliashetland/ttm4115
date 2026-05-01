@@ -26,7 +26,7 @@ export const drones: IDrone[] = [
             currentLoad: 0,
             currentOrders: []
         },
-        status: "idle"
+        status: "in-flight"
 
     },
     {
@@ -112,7 +112,8 @@ export const orders: IOrder[] = [
         width: 5,
         height: 2,
         weight: 1.5,
-        deliveryTime: 30,
+
+        status: "In Transit",
         target: {
             latitude: 63.394284,
             longitude: 10.419027,

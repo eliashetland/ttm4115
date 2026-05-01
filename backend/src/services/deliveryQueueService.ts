@@ -1,3 +1,4 @@
+import type { IDrone } from "../models/droneModel.js";
 import type { IOrder } from "../models/orderModel.js";
 
 
@@ -119,7 +120,7 @@ class DeliveryQueueService {
         const availableDrones = drones.filter(drone => 
             drone.batteryLevel > 20 && // Minimum battery threshold
             drone.status === 'idle' &&
-            canDroneCarryOrder(drone, order)
+            canDroneCarryOrder(drone as IDrone, order)
         );
         
         // For now, just return the first available drone

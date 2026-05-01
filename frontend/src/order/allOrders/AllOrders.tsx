@@ -43,10 +43,13 @@ export const AllOrders = () => {
               {order.length}x{order.width}x{order.height}
             </td>
             <td>{order.weight}</td>
-            <td>{order.deliveryTime} min</td>
+            <td>{DateUtils.timeStringFromMinutes(order.deliveryTime)}</td>
             <td>{order.history[0].status}</td>
             <td>
-              {DateUtils.format(order.history[0].createdAt, "yyyy-MM-dd HH:mm:ss")}
+              {DateUtils.format(
+                order.history[0].createdAt,
+                "yyyy-MM-dd HH:mm:ss",
+              )}
             </td>
           </tr>
         ))}

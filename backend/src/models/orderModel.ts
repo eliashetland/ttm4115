@@ -10,9 +10,10 @@ export interface IOrder {
     width: number;
     height: number;
     weight: number;
+    status: "Created" | "In Transit" | "Delivered";
     history: IOrderHistory[];
     target: IOrderLocation;
-    deliveryTime: number; // in minutes
+    deliveryTime?: number; // in minutes
 }
 
 
