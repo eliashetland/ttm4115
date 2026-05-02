@@ -6,8 +6,8 @@ import threading
 
 client = mqtt.Client()
 
-broker = os.getenv("MQTT_BROKER", "localhost")
-port = os.getenv("MQTT_PORT", 1883)
+broker = os.getenv("MQTT_HOST", "localhost")
+port = int(os.getenv("MQTT_PORT", "1883"))
 
 client.connect(broker, port)
 client.loop_start()
