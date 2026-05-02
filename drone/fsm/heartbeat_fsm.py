@@ -9,6 +9,7 @@ from hardware import Sense
 import time
 import pyudev
 import os
+from services import getId
 
 #starting the drone status machine
 drone_status_machine = create_drone_status_machine()
@@ -35,18 +36,99 @@ c0 = (0, 0, 0)
 blue = (0, 0, 255)
 pink = (255, 0, 255)
 
-def led_id(colour):
-    sense.set_pixel(4,1,colour)
-    sense.set_pixel(3,2,colour)
-    sense.set_pixel(4,2,colour)
-    sense.set_pixel(4,3,colour)
-    sense.set_pixel(4,4,colour)
-    sense.set_pixel(4,5,colour)
-    sense.set_pixel(3,6,colour)
-    sense.set_pixel(4,6,colour)
-    sense.set_pixel(5,6,colour)
+# Number mask for Id numbers:
+DIGITS = {
+    "0": [
+        "111",
+        "101",
+        "101",
+        "101",
+        "111"
+    ],
+    "1": [
+        "010",
+        "110",
+        "010",
+        "010",
+        "111"
+    ],
+    "2": [
+        "111",
+        "001",
+        "111",
+        "100",
+        "111"
+    ],
+    "3": [
+        "111",
+        "001",
+        "111",
+        "001",
+        "111"
+    ],
+    "4": [
+        "101",
+        "101",
+        "111",
+        "001",
+        "001"
+    ],
+    "5": [
+        "111",
+        "100",
+        "111",
+        "001",
+        "111"
+    ],
+    "6": [
+        "111",
+        "100",
+        "111",
+        "101",
+        "111"
+    ],
+    "7": [
+        "111",
+        "001",
+        "010",
+        "010",
+        "010"
+    ],
+    "8": [
+        "111",
+        "101",
+        "111",
+        "101",
+        "111"
+    ],
+    "9": [
+        "111",
+        "101",
+        "111",
+        "001",
+        "111"
+    ]
+}
 
-led_id(pink)
+def led_id(number, colour=(255,0,255)):
+    num_str = str(int(number)).zfill(2)
+
+    sense.clear()
+
+    for i, digit in enumerate(num_str):
+        pattern = DIGITS[digit]
+
+        for y, row in enumerate(pattern):
+            for x, val in enumerate(row):
+                if val == "1":
+                    sense.set_pixel(x + i*4 + 1, y + 1, colour)
+
+def setId(newId):
+    global id
+    id = newId
+    led_id(id)
+    
+getId(setId)
 
 class Battery:
     def __init__(self, sense):
