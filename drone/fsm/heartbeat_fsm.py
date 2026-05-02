@@ -5,9 +5,10 @@ import json
 from datetime import datetime
 import numpy as np
 from drone_status_fsm import DroneStatus, create_machine as create_drone_status_machine
-from sense_hat import SenseHat
+from hardware import Sense
 import time
 import pyudev
+import os
 
 #starting the drone status machine
 drone_status_machine = create_drone_status_machine()
@@ -18,7 +19,7 @@ driver.add_machine(drone_status_machine)
 id = 1
 
 #battery stm
-sense = SenseHat()
+sense = Sense()
 sense.low_light = True
 sense.clear()
 
@@ -375,7 +376,7 @@ class MQTT_Client_1:
             print("Interrupted")
             self.client.disconnect()
 
-broker, port = "mqtt20.iik.ntnu.no", 1883
+broker, port = os.getenv("MQTT_HOST", "mqtt20.iik.ntnu.no"), int(os.getenv("MQTT_PORT", "1883"))
 
 myclient = MQTT_Client_1()
 heartbeat_machine.client = myclient.client

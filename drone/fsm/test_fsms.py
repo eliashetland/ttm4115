@@ -10,6 +10,7 @@ from fsm.delivery_status_fsm import DeliveryStatus, create_machine as create_del
 from fsm.drone_selection_fsm import DroneSelection, create_machine as create_drone_selection_machine
 from fsm.drone_status_fsm import DroneStatus, create_machine as create_drone_status_machine
 from fsm.general_drone_fsm import GeneralDrone, create_machine as create_general_drone_machine
+from heartbeat_fsm import Heartbeat, create_heartbeat_machine as create_heartbeat_drone_machine
 
 
 PAUSE = 0.05

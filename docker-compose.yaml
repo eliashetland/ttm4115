@@ -1,6 +1,10 @@
 services:
   drone:
     build: ./drone
+    environment:
+      RUNNING_IN_DOCKER: 1
+    env_file:
+      - path: MQTT.env
     volumes:
       - ./drone:/workspace
 
