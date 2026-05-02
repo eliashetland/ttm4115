@@ -116,7 +116,7 @@ class RemoteGUI:
         self.canvas = tk.Canvas(self.root, width=240, height=240, bg="black")
         self.canvas.pack(pady=10)
 
-        tk.Label(led_frame, text="X").grid(row=0, column=0)
+        """ tk.Label(led_frame, text="X").grid(row=0, column=0)
         tk.Label(led_frame, text="Y").grid(row=0, column=1)
         tk.Label(led_frame, text="R").grid(row=0, column=2)
         tk.Label(led_frame, text="G").grid(row=0, column=3)
@@ -139,7 +139,7 @@ class RemoteGUI:
         )
         tk.Button(led_frame, text="Clear Display", command=self.clear_led).grid(
             row=3, column=0, columnspan=5
-        )
+        ) """
         tk.Button(led_frame, text="Get LED State", command=self.get_led).grid(
             row=4, column=0, columnspan=5, pady=5
         )
