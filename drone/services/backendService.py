@@ -80,4 +80,4 @@ def getId(setId, timeout=5):
 def setId(id):
     print("Received drone id:", id)
  
-getId(setId)
+#getId(setId)
