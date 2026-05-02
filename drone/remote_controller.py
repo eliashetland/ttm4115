@@ -19,6 +19,7 @@ class RemoteGUI:
         self.client.subscribe("sense/pixel/state")
         self.live_refresh = False
         self.refresh_rate_ms = 100
+        self.id = tk.IntVar(value=1)
         self.build_ui()
         self.led_rects = [[None for _ in range(8)] for _ in range(8)]
         self._init_led_grid()
@@ -49,11 +50,11 @@ class RemoteGUI:
                 self.led_rects[y][x] = rect
 
     def get_led(self):
-        self.client.publish("sense/pixel/get", "1")
+        self.client.publish(f"drones/{self.id.get()}/sense/pixel/get", "1")
 
     # ---------- MQTT helpers ----------
     def send_joystick(self, direction):
-        self.client.publish("joystick/add", direction)
+        self.client.publish(f"drones/{self.id.get()}/joystick/add", direction)
         print("Sent joystick:", direction)
 
     def clear_led(self):
@@ -74,6 +75,10 @@ class RemoteGUI:
 
     # ---------- UI ----------
     def build_ui(self):
+        id_frame = tk.LabelFrame(self.root, text="Drone ID")
+        id_frame.pack(padx=10, pady=10)
+        tk.Spinbox(id_frame, from_=1, to=99, textvariable=self.id, width=5).pack()
+
         joystick_frame = tk.LabelFrame(self.root, text="Joystick")
         joystick_frame.pack(padx=10, pady=10)
 
@@ -178,7 +183,7 @@ class RemoteGUI:
             return
 
         # Request LED state
-        self.client.publish("sense/pixel/get", "1")
+        self.get_led()
 
         # Schedule next refresh
         self.root.after(self.refresh_rate_ms, self.live_update_loop)

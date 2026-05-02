@@ -9,7 +9,7 @@ from hardware import Sense
 import time
 import pyudev
 import os
-from services import getId
+from services import getId, loadId, saveId
 
 #starting the drone status machine
 drone_status_machine = create_drone_status_machine()
@@ -17,7 +17,7 @@ driver = Driver()
 driver.add_machine(drone_status_machine)
 
 #permanent variables
-id = 1
+id = loadId()
 
 #battery stm
 sense = Sense()
@@ -127,8 +127,13 @@ def setId(newId):
     global id
     id = newId
     led_id(id)
-    
-getId(setId)
+    saveId(id)
+
+# Get id if not persistent memory
+if id < 1:
+    getId(setId)
+else:
+    led_id(id)
 
 class Battery:
     def __init__(self, sense):

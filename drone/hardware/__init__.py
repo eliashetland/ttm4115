@@ -5,4 +5,4 @@ if os.getenv("RUNNING_IN_DOCKER") == "1":
     from .sense_mock import SenseMock as Sense
 else:
     print("NO MOCKING HARDWARE MODULES")
-    from .sense_pi import SensePi as Sense
+    from sense_hat import SenseHat as Sense

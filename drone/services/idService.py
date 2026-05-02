@@ -3,26 +3,28 @@ import paho.mqtt.client as mqtt
 import os
 import json
 import threading
+import time
 
 client = mqtt.Client()
 
 broker = os.getenv("MQTT_HOST", "localhost")
 port = int(os.getenv("MQTT_PORT", "1883"))
+drone_file = "/home/pi/drone_id"
 
 client.connect(broker, port)
 client.loop_start()
 
 drone = {
     "droneId": -1,
-    "name": "HAHA",
-    "model": "lmao",
-    "manufacturer": "bruther",
+    "name": "Example Drone",
+    "model": "Example Model",
+    "manufacturer": "Example Manufacturer",
     "batterylevel": 40,
     "position": {
       "latitude": 24,
       "longitude": 14,
       "altitude": 54,
-      "timestamp": 1777553417274
+      "timestamp": int(time.time())
     },
     "maxCapacity": {
       "maxWeight": 2,
@@ -37,7 +39,32 @@ drone = {
     "status": "idle"
 }
 
-def getId(setId, timeout=5):
+def loadId():
+    try:
+        with open(drone_file, "r") as f:
+            content = f.read().strip()
+
+        # Case 1: empty file
+        if not content:
+            raise ValueError("File empty")
+
+        # Case 2: not a valid integer
+        value = int(content)
+
+        return value
+
+    except (FileNotFoundError, ValueError):
+        # File missing OR corrupted → repair it automatically
+        return -1
+
+def saveId(id_value, path=drone_file):
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+
+    with open(path, "w") as f:
+        f.write(str(id_value))
+
+def getId(setId, drone=drone, timeout=15):
     nonce = str(uuid1())
 
     # Event used to block until reply arrives
@@ -75,7 +102,8 @@ def getId(setId, timeout=5):
     success = response_event.wait(timeout)
 
     if not success:
-        raise TimeoutError("Did not receive drone ID within timeout")
+        print("Did not receive drone ID within timeout")
+        getId(setId, drone, timeout)
    
 def setId(id):
     print("Received drone id:", id)

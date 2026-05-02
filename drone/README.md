@@ -26,3 +26,7 @@ It is now possible to simulate the joysticks on the mocks throug the remote_cont
 ```bash
 python remote_controller.py
 ```
+
+## Id management on the drone
+
+The id is either set manually in the drone_id file under /home/pi/drone_id, or it gets automatically assigned from the server when requested.

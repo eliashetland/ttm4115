@@ -2,6 +2,8 @@ from .sense_interface import SenseInterface
 import paho.mqtt.client as mqtt
 import os
 import json
+from services import loadId
+
 
 class MockEvent:
     def __init__(self, direction, action="pressed"):
@@ -26,21 +28,29 @@ class SenseMock(SenseInterface):
 
     def __init__(self):
         self.client = mqtt.Client()
-        self.topic_handlers = {
-            "joystick/add": self._mqtt_add_joystick_event,
-            #"sense/clear": self._mqtt_clear,
-            #"sense/pixel": self._mqtt_set_pixel,
-            "sense/pixel/get": self._mqtt_get_pixel,
-        }
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
-        self.client.connect(os.getenv("MQTT_HOST", "mqtt20.iik.ntnu.no"), int(os.getenv("MQTT_PORT", "1883")))
+        self.client.connect(
+            os.getenv("MQTT_HOST", "mqtt20.iik.ntnu.no"),
+            int(os.getenv("MQTT_PORT", "1883")),
+        )
         self.client.loop_start()
-        self.led_matrix = [[(0,0,0) for _ in range(8)] for _ in range(8)]
+        self.led_matrix = [[(0, 0, 0) for _ in range(8)] for _ in range(8)]
         print("Running with MOCK SenseHat 🧪")
 
     def on_connect(self, client, userdata, flags, rc):
         print("MQTT connected:", mqtt.connack_string(rc))
+
+        id = -1
+        while id < 1:
+            id = loadId()
+
+        self.topic_handlers = {
+            f"drones/{id}/joystick/add": self._mqtt_add_joystick_event,
+            # "sense/clear": self._mqtt_clear,
+            # "sense/pixel": self._mqtt_set_pixel,
+            f"drones/{id}/sense/pixel/get": self._mqtt_get_pixel,
+        }
 
         for topic in self.topic_handlers:
             client.subscribe(topic)
@@ -68,9 +78,7 @@ class SenseMock(SenseInterface):
         self.stick.add_event(event)
 
     def _mqtt_get_pixel(self, payload):
-        data = {
-            "matrix": self.led_matrix
-        }
+        data = {"matrix": self.led_matrix}
         self.client.publish("sense/pixel/state", json.dumps(data))
 
     def set_pixel(self, x, y, color):
@@ -78,7 +86,7 @@ class SenseMock(SenseInterface):
         print(f"[LED] ({x},{y}) = {color}")
 
     def clear(self):
-        self.led_matrix = [[(0,0,0) for _ in range(8)] for _ in range(8)]
+        self.led_matrix = [[(0, 0, 0) for _ in range(8)] for _ in range(8)]
         print("[LED] clear")
 
     low_light = False
