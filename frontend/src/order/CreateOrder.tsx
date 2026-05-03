@@ -232,7 +232,7 @@ export const CreateOrder = () => {
           <div className={styles.deliveryInfo}>
             <h3>Delivery Information</h3>
             <p>Coordinates: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}</p>
-            <p>Estimated delivery time: {Math.ceil(deliveryTime * 60)} minutes</p>
+            <p>Estimated delivery time: {deliveryTime} minutes</p>
           </div>
         )}
 

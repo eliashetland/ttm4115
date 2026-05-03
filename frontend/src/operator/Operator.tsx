@@ -6,9 +6,10 @@ import { DateUtils } from "../utils/DateUtils";
 import { DroneMap } from "./DroneMap";
 import type { IDronePosition } from "../api/models/IDronePosition";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export const Operator = () => {
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const { data: drones } = useQuery({
     queryKey: ["drones"],
     queryFn: () => ApiClient.get<IDrone[]>("/drone"),
@@ -34,49 +35,33 @@ export const Operator = () => {
             <tr>
               <th>ID</th>
               <th>battery</th>
+              <th>status</th>
+              <th>last update</th>
+              <th>time left</th>
+              <th>order</th>
               <th>name</th>
               <th>model</th>
               <th>manufacturer</th>
-              <th>position</th>
-              <th>last update</th>
               <th>max (cm)</th>
               <th>max (kg)</th>
-              <th>status</th>
             </tr>
           </thead>
           <tbody>
             {drones?.map((drone) => (
               <tr key={drone.droneId}>
-                <td>
-                  <a href={`/drone/${drone.droneId}`}>{drone.droneId}</a>
-                </td>
-                <td
-                  className={`${
-                    drone.batteryLevel > 50
-                      ? styles.green
-                      : drone.batteryLevel > 20
-                        ? styles.yellow
-                        : styles.red
-                  } ${styles.batteryLevel}`}
-                >
+                <td><a href={`/drone/${drone.droneId}`}>{drone.droneId}</a></td>
+                <td className={`${drone.batteryLevel > 50 ? styles.green : drone.batteryLevel > 20 ? styles.yellow : styles.red} ${styles.batteryLevel}`}>
                   {drone.batteryLevel}%
                 </td>
+                <td>{drone.status}</td>
+                <td>{DateUtils.format(drone.position.timestamp, "HH:mm:ss")}</td>
+                <td>{DateUtils.timeStringFromMinutes(drone.timeLeft)}</td>
+                <td><Link to={`/orders/${drone.orderId}`}>{drone.orderId}</Link></td>
                 <td>{drone.name}</td>
                 <td>{drone.model}</td>
                 <td>{drone.manufacturer}</td>
-                <td>
-                  {drone.position.latitude}, {drone.position.longitude}
-                </td>
-                <td>
-                  {DateUtils.format(drone.position.timestamp, "HH:mm:ss")}
-                </td>
-
-                <td>
-                  {drone.maxCapacity.length}x{drone.maxCapacity.width}x
-                  {drone.maxCapacity.height}
-                </td>
+                <td>{drone.maxCapacity.length}x{drone.maxCapacity.width}x{drone.maxCapacity.height}</td>
                 <td>{drone.maxCapacity.weight}</td>
-                <td>{drone.status}</td>
               </tr>
             ))}
           </tbody>
@@ -85,15 +70,7 @@ export const Operator = () => {
 
       <div className={styles.map}>
         <DroneMap
-          position={
-            drones?.map(
-              (drone) =>
-                ({
-                  ...drone.position,
-                  droneId: drone.droneId,
-                }) as IDronePosition,
-            ) || []
-          }
+          position={drones?.map((drone) => ({ ...drone.position, droneId: drone.droneId }) as IDronePosition) || []}
         />
       </div>
     </div>
