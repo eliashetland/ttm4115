@@ -1,16 +1,14 @@
 import type { IDrone } from "../models/droneModel.js";
 import type { IOrder } from "../models/orderModel.js";
-
-const WAREHOUSE = { latitude: 63.415777440500655, longitude: 10.406715511683895, altitude: 100 };
-const DRONE_SPEED_KMH = 50;
+import { WAREHOUSE_COORDS, DRONE_SPEED_KMH } from "../constants.js";
 
 function calcDeliveryMinutes(targetLat: number, targetLon: number): number {
     const R = 6371;
     const toRad = (d: number) => d * Math.PI / 180;
-    const dLat = toRad(targetLat - WAREHOUSE.latitude);
-    const dLon = toRad(targetLon - WAREHOUSE.longitude);
+    const dLat = toRad(targetLat - WAREHOUSE_COORDS.latitude);
+    const dLon = toRad(targetLon - WAREHOUSE_COORDS.longitude);
     const a = Math.sin(dLat / 2) ** 2
-        + Math.cos(toRad(WAREHOUSE.latitude)) * Math.cos(toRad(targetLat)) * Math.sin(dLon / 2) ** 2;
+        + Math.cos(toRad(WAREHOUSE_COORDS.latitude)) * Math.cos(toRad(targetLat)) * Math.sin(dLon / 2) ** 2;
     const distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return Math.ceil((distKm / DRONE_SPEED_KMH) * 60);
 }
@@ -23,21 +21,12 @@ export const drones: IDrone[] = [
         manufacturer: "Manufacturer X",
         batteryLevel: 100,
         position: {
-            latitude: WAREHOUSE.latitude,
-            longitude: WAREHOUSE.longitude,
-            altitude: WAREHOUSE.altitude,
+            latitude: WAREHOUSE_COORDS.latitude,
+            longitude: WAREHOUSE_COORDS.longitude,
+            altitude: WAREHOUSE_COORDS.altitude,
             timestamp: new Date().toISOString(),
         },
-        maxCapacity: {
-            length: 100,
-            width: 100,
-            height: 100,
-            weight: 10,
-            maxWeight: 10,
-            maxVolume: 1000000,
-            currentLoad: 0,
-            currentOrders: []
-        },
+        maxCapacity: { length: 100, width: 100, height: 100, weight: 10 },
         status: "idle"
     },
     {
@@ -47,21 +36,12 @@ export const drones: IDrone[] = [
         manufacturer: "Manufacturer Y",
         batteryLevel: 100,
         position: {
-            latitude: WAREHOUSE.latitude,
-            longitude: WAREHOUSE.longitude,
-            altitude: WAREHOUSE.altitude,
+            latitude: WAREHOUSE_COORDS.latitude,
+            longitude: WAREHOUSE_COORDS.longitude,
+            altitude: WAREHOUSE_COORDS.altitude,
             timestamp: new Date().toISOString(),
         },
-        maxCapacity: {
-            length: 50,
-            width: 50,
-            height: 300,
-            weight: 15,
-            maxWeight: 15,
-            maxVolume: 750000,
-            currentLoad: 0,
-            currentOrders: []
-        },
+        maxCapacity: { length: 50, width: 50, height: 300, weight: 15 },
         status: "idle"
     },
     {
@@ -71,21 +51,12 @@ export const drones: IDrone[] = [
         manufacturer: "Manufacturer Z",
         batteryLevel: 100,
         position: {
-            latitude: WAREHOUSE.latitude,
-            longitude: WAREHOUSE.longitude,
-            altitude: WAREHOUSE.altitude,
+            latitude: WAREHOUSE_COORDS.latitude,
+            longitude: WAREHOUSE_COORDS.longitude,
+            altitude: WAREHOUSE_COORDS.altitude,
             timestamp: new Date().toISOString(),
         },
-        maxCapacity: {
-            length: 200,
-            width: 200,
-            height: 200,
-            weight: 25,
-            maxWeight: 25,
-            maxVolume: 8000000,
-            currentLoad: 0,
-            currentOrders: []
-        },
+        maxCapacity: { length: 200, width: 200, height: 200, weight: 25 },
         status: "idle"
     }
 ];
@@ -99,29 +70,15 @@ export const orders: IOrder[] = [
         address: "Munkegata 26",
         zip: "7011",
         city: "Trondheim",
-        length: 20,
-        width: 15,
-        height: 10,
-        weight: 2.0,
+        length: 20, width: 15, height: 10, weight: 2.0,
+        status: "Created",
         deliveryTime: calcDeliveryMinutes(63.4303, 10.3948),
-        target: {
-            latitude: 63.4303,
-            longitude: 10.3948,
-            description: "Munkegata 26, Trondheim"
-        },
-        history: [
-            {
-                createdAt: new Date(),
-                status: "Created",
-                message: "Order created and queued for delivery",
-                location: {
-                    latitude: WAREHOUSE.latitude,
-                    longitude: WAREHOUSE.longitude,
-                    description: "Warehouse"
-                },
-                type: "status"
-            }
-        ]
+        target: { latitude: 63.4303, longitude: 10.3948, description: "Munkegata 26, Trondheim" },
+        history: [{
+            createdAt: new Date(), status: "Created", type: "status",
+            location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
+            message: "Order created and queued for delivery"
+        }]
     },
     {
         id: 2,
@@ -131,29 +88,15 @@ export const orders: IOrder[] = [
         address: "Prinsens gate 38",
         zip: "7012",
         city: "Trondheim",
-        length: 30,
-        width: 20,
-        height: 15,
-        weight: 3.5,
+        length: 30, width: 20, height: 15, weight: 3.5,
+        status: "Created",
         deliveryTime: calcDeliveryMinutes(63.4296, 10.3928),
-        target: {
-            latitude: 63.4296,
-            longitude: 10.3928,
-            description: "Prinsens gate 38, Trondheim"
-        },
-        history: [
-            {
-                createdAt: new Date(),
-                status: "Created",
-                message: "Order created and queued for delivery",
-                location: {
-                    latitude: WAREHOUSE.latitude,
-                    longitude: WAREHOUSE.longitude,
-                    description: "Warehouse"
-                },
-                type: "status"
-            }
-        ]
+        target: { latitude: 63.4296, longitude: 10.3928, description: "Prinsens gate 38, Trondheim" },
+        history: [{
+            createdAt: new Date(), status: "Created", type: "status",
+            location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
+            message: "Order created and queued for delivery"
+        }]
     },
     {
         id: 3,
@@ -163,29 +106,15 @@ export const orders: IOrder[] = [
         address: "Ladeveien 30",
         zip: "7027",
         city: "Trondheim",
-        length: 15,
-        width: 10,
-        height: 8,
-        weight: 1.2,
+        length: 15, width: 10, height: 8, weight: 1.2,
+        status: "Created",
         deliveryTime: calcDeliveryMinutes(63.4512, 10.4530),
-        target: {
-            latitude: 63.4512,
-            longitude: 10.4530,
-            description: "Ladeveien 30, Trondheim"
-        },
-        history: [
-            {
-                createdAt: new Date(),
-                status: "Created",
-                message: "Order created and queued for delivery",
-                location: {
-                    latitude: WAREHOUSE.latitude,
-                    longitude: WAREHOUSE.longitude,
-                    description: "Warehouse"
-                },
-                type: "status"
-            }
-        ]
+        target: { latitude: 63.4512, longitude: 10.4530, description: "Ladeveien 30, Trondheim" },
+        history: [{
+            createdAt: new Date(), status: "Created", type: "status",
+            location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
+            message: "Order created and queued for delivery"
+        }]
     },
     {
         id: 4,
@@ -195,29 +124,15 @@ export const orders: IOrder[] = [
         address: "Elgeseter gate 14",
         zip: "7030",
         city: "Trondheim",
-        length: 40,
-        width: 30,
-        height: 20,
-        weight: 5.0,
+        length: 40, width: 30, height: 20, weight: 5.0,
+        status: "Created",
         deliveryTime: calcDeliveryMinutes(63.4224, 10.3954),
-        target: {
-            latitude: 63.4224,
-            longitude: 10.3954,
-            description: "Elgeseter gate 14, Trondheim"
-        },
-        history: [
-            {
-                createdAt: new Date(),
-                status: "Created",
-                message: "Order created and queued for delivery",
-                location: {
-                    latitude: WAREHOUSE.latitude,
-                    longitude: WAREHOUSE.longitude,
-                    description: "Warehouse"
-                },
-                type: "status"
-            }
-        ]
+        target: { latitude: 63.4224, longitude: 10.3954, description: "Elgeseter gate 14, Trondheim" },
+        history: [{
+            createdAt: new Date(), status: "Created", type: "status",
+            location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
+            message: "Order created and queued for delivery"
+        }]
     },
     {
         id: 5,
@@ -227,29 +142,15 @@ export const orders: IOrder[] = [
         address: "Innherredsveien 120",
         zip: "7067",
         city: "Trondheim",
-        length: 25,
-        width: 20,
-        height: 30,
-        weight: 4.0,
+        length: 25, width: 20, height: 30, weight: 4.0,
+        status: "Created",
         deliveryTime: calcDeliveryMinutes(63.4430, 10.4270),
-        target: {
-            latitude: 63.4430,
-            longitude: 10.4270,
-            description: "Innherredsveien 120, Trondheim"
-        },
-        history: [
-            {
-                createdAt: new Date(),
-                status: "Created",
-                message: "Order created and queued for delivery",
-                location: {
-                    latitude: WAREHOUSE.latitude,
-                    longitude: WAREHOUSE.longitude,
-                    description: "Warehouse"
-                },
-                type: "status"
-            }
-        ]
+        target: { latitude: 63.4430, longitude: 10.4270, description: "Innherredsveien 120, Trondheim" },
+        history: [{
+            createdAt: new Date(), status: "Created", type: "status",
+            location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
+            message: "Order created and queued for delivery"
+        }]
     },
     {
         id: 6,
@@ -259,28 +160,14 @@ export const orders: IOrder[] = [
         address: "Brøsetvegen 186",
         zip: "7048",
         city: "Trondheim",
-        length: 50,
-        width: 40,
-        height: 35,
-        weight: 8.0,
+        length: 50, width: 40, height: 35, weight: 8.0,
+        status: "Created",
         deliveryTime: calcDeliveryMinutes(63.4086, 10.3637),
-        target: {
-            latitude: 63.4086,
-            longitude: 10.3637,
-            description: "Brøsetvegen 186, Trondheim"
-        },
-        history: [
-            {
-                createdAt: new Date(),
-                status: "Created",
-                message: "Order created and queued for delivery",
-                location: {
-                    latitude: WAREHOUSE.latitude,
-                    longitude: WAREHOUSE.longitude,
-                    description: "Warehouse"
-                },
-                type: "status"
-            }
-        ]
+        target: { latitude: 63.4086, longitude: 10.3637, description: "Brøsetvegen 186, Trondheim" },
+        history: [{
+            createdAt: new Date(), status: "Created", type: "status",
+            location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
+            message: "Order created and queued for delivery"
+        }]
     }
 ];

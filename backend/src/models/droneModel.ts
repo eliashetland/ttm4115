@@ -14,7 +14,7 @@ export interface IDrone {
     orderId?: number;
     destination?: IOrderLocation;
     departureTime?: number;
-    warehousePosition?: IDronePosition;
+    timeLeft?: number;
 }
 
 export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel" | "status"> {
