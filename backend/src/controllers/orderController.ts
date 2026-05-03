@@ -1,144 +1,64 @@
 import { drones, orders } from "../db/db.js";
 import type { IOrder, IOrderHistory, IOrderInsert, IOrderLocation } from "../models/orderModel.js";
 import { deliveryQueueService } from "../services/deliveryQueueService.js";
-import { haversineDistance, timeBetweenPoints, timeFromWarehouse } from "../services/deliveryTimeService.js";
-
+import { timeFromWarehouse } from "../services/deliveryTimeService.js";
 
 export const createOrder = (order: IOrderInsert) => {
-
     validateOrderData(order);
 
     const newOrder: IOrder = {
-        id: orders.length > 0 ? orders[orders.length - 1]!.id + 1 : 1, //TODO: Assumes orders never deleted, so should be fixed
-
-        history: [
-            {
-                createdAt: new Date(),
-                status: "Created",
-                location: {
-                    latitude: 63.415808,
-                    longitude: 10.406744,
-                    description: "Warehouse"
-                },
-                type: "status",
-                message: "Order created and ready for processing"
-            },
-        ],
-
+        id: orders.length > 0 ? orders[orders.length - 1]!.id + 1 : 1,
+        status: "Created",
+        history: [{
+            createdAt: new Date(),
+            status: "Created",
+            location: { latitude: 63.415777440500655, longitude: 10.406715511683895, description: "Warehouse" },
+            type: "status",
+            message: "Order created and ready for processing"
+        }],
+        deliveryTime: timeFromWarehouse(order.target.latitude, order.target.longitude),
         ...order,
     };
 
     orders.push(newOrder);
-    console.log(orders);
-
-    // Add to delivery queue for processing
     deliveryQueueService.addToQueue(newOrder);
-
     return newOrder;
 };
 
+export const getAllOrders = () => orders;
 
-
-export const getAllOrders = () => {
-
-    const ordersWithDeliveryTime = orders.map(order => {
-        const selectedDrone = drones.find(drone => drone.orderId === order.id);
-        if (selectedDrone) {
-            order.deliveryTime = timeBetweenPoints(
-                selectedDrone.position.latitude,
-                selectedDrone.position.longitude,
-                order.target.latitude,
-                order.target.longitude
-            )
-        } else {
-            order.deliveryTime = timeFromWarehouse(
-                order.target.latitude,
-                order.target.longitude
-            )
-        };
-        return order;
-    });
-
-
-    return ordersWithDeliveryTime;
-};
-
-export const getOrderById = (orderId: number) => {
-    const order = orders.find(order => order.id === orderId);
-    if (!order) return null;
-
-    const selectedDrone = drones.find(drone => drone.orderId === orderId);
-
-
-    if (selectedDrone) {
-        order.deliveryTime = timeBetweenPoints(
-            selectedDrone.position.latitude,
-            selectedDrone.position.longitude,
-            order.target.latitude,
-            order.target.longitude
-        )
-    } else {
-        order.deliveryTime = timeFromWarehouse(
-            order.target.latitude,
-            order.target.longitude
-        )
-    };
-
-
-    return order || null;
-}
+export const getOrderById = (orderId: number) => orders.find(o => o.id === orderId) ?? null;
 
 export const updateOrderStatus = (orderId: number, status: string, location: IOrderLocation, message: string) => {
-    const order = orders.find(order => order.id === orderId);
-
     validateUpdateOrderStatusData(status, location, message);
-
-    if (!order) {
-        throw new Error("Order not found");
-    }
-    const newHistoryEntry: IOrderHistory = {
-        createdAt: new Date(),
-        status,
-        location,
-        message,
-        type: "status"
-    };
-    order.history.unshift(newHistoryEntry);
+    const order = orders.find(o => o.id === orderId);
+    if (!order) throw new Error("Order not found");
+    const entry: IOrderHistory = { createdAt: new Date(), status, location, message, type: "status" };
+    order.history.push(entry);
     return order;
-}
-
-
-const validateUpdateOrderStatusData = (status: string, location: IOrderLocation, message: string) => {
-    if (!status || !location || !message) {
-        throw new Error("Status, location, and message are required");
-    }
-    if (location.description.trim() === "" || message.trim() === "" || status.trim() === "") {
-        throw new Error("Location, message, and status cannot be empty");
-    }
-    if (typeof location.latitude !== "number" || typeof location.longitude !== "number") {
-        throw new Error("Invalid location coordinates");
-    }
 };
 
+const validateUpdateOrderStatusData = (status: string, location: IOrderLocation, message: string) => {
+    if (!status || !location || !message) throw new Error("Status, location, and message are required");
+    if (location.description.trim() === "" || message.trim() === "" || status.trim() === "") throw new Error("Location, message, and status cannot be empty");
+    if (typeof location.latitude !== "number" || typeof location.longitude !== "number") throw new Error("Invalid location coordinates");
+};
 
 const validateOrderData = (order: IOrderInsert) => {
-    if (!order.firstName || !order.lastName || !order.address || !order.zip || !order.city || !order.length || !order.width || !order.height) {
-        throw new Error("Missing required order data");
+    const maxWeight = Math.max(...drones.map(d => d.maxCapacity.weight));
+    const maxDim = Math.max(...drones.map(d => Math.max(d.maxCapacity.length, d.maxCapacity.width, d.maxCapacity.height)));
+
+    if (!order.sender?.trim()) throw new Error("Missing sender information");
+    if (!order.firstName?.trim() || !order.lastName?.trim()) throw new Error("First and last name are required");
+    if (!order.address?.trim() || !order.zip?.trim() || !order.city?.trim()) throw new Error("Address, zip, and city are required");
+    if (!order.target || typeof order.target.latitude !== "number" || typeof order.target.longitude !== "number") throw new Error("Valid delivery coordinates are required");
+
+    for (const dim of ["length", "width", "height"] as const) {
+        const val = order[dim];
+        if (typeof val !== "number" || isNaN(val) || val <= 0) throw new Error(`Invalid ${dim}: must be a positive number (cm)`);
+        if (val > maxDim) throw new Error(`${dim} of ${val} cm exceeds the maximum of ${maxDim} cm`);
     }
 
-    if (typeof order.length !== "number" || typeof order.width !== "number" || typeof order.height !== "number") {
-        throw new Error("Invalid order dimensions");
-    }
-
-    if (order.length <= 0 || order.width <= 0 || order.height <= 0) {
-        throw new Error("Order dimensions must be greater than zero");
-    }
-    if (typeof order.weight !== "number" || order.weight <= 0) {
-        throw new Error("Invalid order weight");
-    }
-
-    if (!order.sender) {
-        throw new Error("Missing sender information");
-
-    }
+    if (typeof order.weight !== "number" || isNaN(order.weight) || order.weight <= 0) throw new Error("Invalid weight: must be a positive number (kg)");
+    if (order.weight > maxWeight) throw new Error(`Weight of ${order.weight} kg exceeds the maximum of ${maxWeight} kg`);
 };

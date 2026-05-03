@@ -11,10 +11,9 @@ export interface IOrder {
     height: number;
     weight: number;
     status: "Created" | "In Transit" | "Delivered";
-
     target: IOrderLocation;
     history: IOrderHistory[];
-    deliveryTime: number; // in minutes
+    deliveryTime: number;
 }
 
 export interface IOrderHistory {
@@ -31,9 +30,7 @@ export interface IOrderLocation {
     description: string;
 }
 
-
-
-export interface IOrderInsert extends Omit<IOrder, "id" | "history" | "deliveryTime"> { }
+export interface IOrderInsert extends Omit<IOrder, "id" | "status" | "history" | "deliveryTime"> { }
 
 export function createEmptyOrder(): IOrderInsert {
     return {
@@ -42,16 +39,11 @@ export function createEmptyOrder(): IOrderInsert {
         lastName: "",
         address: "",
         zip: "",
-        status: "Created",
         city: "",
         length: 0,
         width: 0,
         height: 0,
         weight: 0,
-        target: {
-            latitude: 0,
-            longitude: 0,
-            description: ""
-        }
+        target: { latitude: 0, longitude: 0, description: "" }
     };
 }
