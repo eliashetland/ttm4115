@@ -1,17 +1,7 @@
 import type { IDrone } from "../models/droneModel.js";
 import type { IOrder } from "../models/orderModel.js";
-import { WAREHOUSE_COORDS, DRONE_SPEED_KMH } from "../constants.js";
-
-function calcDeliveryMinutes(targetLat: number, targetLon: number): number {
-    const R = 6371;
-    const toRad = (d: number) => d * Math.PI / 180;
-    const dLat = toRad(targetLat - WAREHOUSE_COORDS.latitude);
-    const dLon = toRad(targetLon - WAREHOUSE_COORDS.longitude);
-    const a = Math.sin(dLat / 2) ** 2
-        + Math.cos(toRad(WAREHOUSE_COORDS.latitude)) * Math.cos(toRad(targetLat)) * Math.sin(dLon / 2) ** 2;
-    const distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return Math.ceil((distKm / DRONE_SPEED_KMH) * 60);
-}
+import { WAREHOUSE_COORDS } from "../constants.js";
+import { calculateDeliveryTime } from "../services/deliveryTimeService.js";
 
 export const drones: IDrone[] = [
     {
@@ -41,7 +31,7 @@ export const drones: IDrone[] = [
             altitude: WAREHOUSE_COORDS.altitude,
             timestamp: new Date().toISOString(),
         },
-        maxCapacity: { length: 50, width: 50, height: 300, weight: 15 },
+        maxCapacity: { length: 50, width: 50, height: 200, weight: 15 },
         status: "idle"
     },
     {
@@ -72,7 +62,7 @@ export const orders: IOrder[] = [
         city: "Trondheim",
         length: 20, width: 15, height: 10, weight: 2.0,
         status: "Created",
-        deliveryTime: calcDeliveryMinutes(63.4303, 10.3948),
+        deliveryTime: calculateDeliveryTime(63.4303, 10.3948),
         target: { latitude: 63.4303, longitude: 10.3948, description: "Munkegata 26, Trondheim" },
         history: [{
             createdAt: new Date(), status: "Created", type: "status",
@@ -90,7 +80,7 @@ export const orders: IOrder[] = [
         city: "Trondheim",
         length: 30, width: 20, height: 15, weight: 3.5,
         status: "Created",
-        deliveryTime: calcDeliveryMinutes(63.4296, 10.3928),
+        deliveryTime: calculateDeliveryTime(63.4296, 10.3928),
         target: { latitude: 63.4296, longitude: 10.3928, description: "Prinsens gate 38, Trondheim" },
         history: [{
             createdAt: new Date(), status: "Created", type: "status",
@@ -108,7 +98,7 @@ export const orders: IOrder[] = [
         city: "Trondheim",
         length: 15, width: 10, height: 8, weight: 1.2,
         status: "Created",
-        deliveryTime: calcDeliveryMinutes(63.4512, 10.4530),
+        deliveryTime: calculateDeliveryTime(63.4512, 10.4530),
         target: { latitude: 63.4512, longitude: 10.4530, description: "Ladeveien 30, Trondheim" },
         history: [{
             createdAt: new Date(), status: "Created", type: "status",
@@ -126,7 +116,7 @@ export const orders: IOrder[] = [
         city: "Trondheim",
         length: 40, width: 30, height: 20, weight: 5.0,
         status: "Created",
-        deliveryTime: calcDeliveryMinutes(63.4224, 10.3954),
+        deliveryTime: calculateDeliveryTime(63.4224, 10.3954),
         target: { latitude: 63.4224, longitude: 10.3954, description: "Elgeseter gate 14, Trondheim" },
         history: [{
             createdAt: new Date(), status: "Created", type: "status",
@@ -144,7 +134,7 @@ export const orders: IOrder[] = [
         city: "Trondheim",
         length: 25, width: 20, height: 30, weight: 4.0,
         status: "Created",
-        deliveryTime: calcDeliveryMinutes(63.4430, 10.4270),
+        deliveryTime: calculateDeliveryTime(63.4430, 10.4270),
         target: { latitude: 63.4430, longitude: 10.4270, description: "Innherredsveien 120, Trondheim" },
         history: [{
             createdAt: new Date(), status: "Created", type: "status",
@@ -162,7 +152,7 @@ export const orders: IOrder[] = [
         city: "Trondheim",
         length: 50, width: 40, height: 35, weight: 8.0,
         status: "Created",
-        deliveryTime: calcDeliveryMinutes(63.4086, 10.3637),
+        deliveryTime: calculateDeliveryTime(63.4086, 10.3637),
         target: { latitude: 63.4086, longitude: 10.3637, description: "Brøsetvegen 186, Trondheim" },
         history: [{
             createdAt: new Date(), status: "Created", type: "status",
