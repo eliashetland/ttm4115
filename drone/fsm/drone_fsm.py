@@ -558,7 +558,7 @@ class Heartbeat:
             'timestamp': datetime.now().isoformat(),
             'state': drone_status_machine.state,
             'order_id': drone_status.order_id,
-            'level': battery.level,
+            'battery_level': battery.level,
             'gps': drone_status.position
         }
         self.stm.client.publish("09/heartbeat", json.dumps(heartbeat_data))
