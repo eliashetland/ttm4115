@@ -9,7 +9,7 @@ import { DateUtils } from "../../utils/DateUtils";
 import { useState } from "react";
 
 export const OneOrder = () => {
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const { orderId } = useParams();
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", orderId],
@@ -17,13 +17,8 @@ export const OneOrder = () => {
     refetchInterval: autoRefresh ? 5000 : false,
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!order) {
-    return <div>Order not found</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (!order) return <div>Order not found</div>;
 
   return (
     <div className={styles.container}>
@@ -37,31 +32,25 @@ export const OneOrder = () => {
 
         <section className={`${styles.section} ${styles.map}`}>
           <h2 className={styles.header}>Drone Route</h2>
-                <div className={styles.autoRefresh}>
-        <input
-          type="checkbox"
-          id="auto-refresh"
-          name="auto-refresh"
-          checked={autoRefresh}
-          onChange={(e) => setAutoRefresh(e.target.checked)}
-        />
-        <label htmlFor="auto-refresh">Auto-refresh</label>
-      </div>
-          <DroneRoute
-            orderHistory={order.history}
-            target={order.target}
-          />
+          <div className={styles.autoRefresh}>
+            <input
+              type="checkbox"
+              id="auto-refresh"
+              name="auto-refresh"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+            />
+            <label htmlFor="auto-refresh">Auto-refresh</label>
+          </div>
+          <DroneRoute orderHistory={order.history} target={order.target} />
         </section>
 
         <section className={`${styles.section} ${styles.size}`}>
           <h2 className={styles.header}>Size</h2>
           <label className={styles.label} htmlFor="dimensions">
             Dimensions
-            <p className={styles.value}>
-              {order.length} x {order.width} x {order.height} cm
-            </p>
+            <p className={styles.value}>{order.length} x {order.width} x {order.height} cm</p>
           </label>
-
           <label className={styles.label} htmlFor="weight">
             Weight
             <p className={styles.value}>{order.weight} kg</p>
@@ -74,23 +63,16 @@ export const OneOrder = () => {
             Order ID
             <p className={styles.value}>{order.id}</p>
           </label>
-
           <label className={styles.label} htmlFor="sender">
             Sender
             <p className={styles.value}>{order.sender}</p>
           </label>
-
           <label className={styles.label} htmlFor="recipient">
             Recipient
-            <p className={styles.value}>
-              {order.firstName} {order.lastName}
-            </p>
+            <p className={styles.value}>{order.firstName} {order.lastName}</p>
             <p className={styles.value}>{order.address}</p>
-            <p className={styles.value}>
-              {order.zip} {order.city}
-            </p>
+            <p className={styles.value}>{order.zip} {order.city}</p>
           </label>
-
           <label className={styles.label} htmlFor="deliveryTime">
             Estimated Delivery Time
             <p className={styles.value}>{DateUtils.timeStringFromMinutes(order.deliveryTime)}</p>

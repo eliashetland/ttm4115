@@ -2,6 +2,8 @@
 import Map, { Layer, Source } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { IOrderHistory, IOrderLocation } from "../../../api/models/IOrder";
+import { useEffect, useState } from "react";
+
 interface IDroneRouteProps {
   orderHistory: IOrderHistory[];
   target: IOrderLocation;
@@ -13,6 +15,26 @@ export const DroneRoute = (props: IDroneRouteProps) => {
     longitude: history.location.longitude,
     timestamp: history.createdAt,
   }));
+
+  const lastPosition = position[props.orderHistory.length - 1];
+
+  const [viewState, setViewState] = useState({
+    longitude: lastPosition?.longitude ?? props.target.longitude,
+    latitude: lastPosition?.latitude ?? props.target.latitude,
+    zoom: 12,
+  });
+
+  useEffect(() => {
+    if (lastPosition) {
+      setViewState((v) => ({
+        ...v,
+        longitude: lastPosition.longitude,
+        latitude: lastPosition.latitude,
+      }));
+    }
+  }, [lastPosition?.latitude, lastPosition?.longitude]);
+
+  if (!lastPosition) return <div>No location data</div>;
 
   const lineGeoJSON = {
     type: "Feature",
@@ -33,7 +55,6 @@ export const DroneRoute = (props: IDroneRouteProps) => {
     })),
   };
 
-  const lastPosition = position[props.orderHistory.length - 1];
   const dronePoint = {
     type: "Feature",
     geometry: {
@@ -42,8 +63,6 @@ export const DroneRoute = (props: IDroneRouteProps) => {
     },
   };
 
-  console.log(props.target);
-  
   const targetPoint = {
     type: "Feature",
     geometry: {
@@ -55,11 +74,8 @@ export const DroneRoute = (props: IDroneRouteProps) => {
   return (
     <Map
       mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
-      initialViewState={{
-        longitude: lastPosition.longitude,
-        latitude: lastPosition.latitude,
-        zoom: 12,
-      }}
+      {...viewState}
+      onMove={(evt) => setViewState(evt.viewState)}
       style={{ width: "100%", height: 400 }}
       mapStyle="mapbox://styles/mapbox/streets-v9"
     >

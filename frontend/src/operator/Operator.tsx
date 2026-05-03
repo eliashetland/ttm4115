@@ -6,14 +6,14 @@ import { DateUtils } from "../utils/DateUtils";
 import { DroneMap } from "./DroneMap";
 import type { IDronePosition } from "../api/models/IDronePosition";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 export const Operator = () => {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const { data: drones } = useQuery({
     queryKey: ["drones"],
     queryFn: () => ApiClient.get<IDrone[]>("/drone"),
-    refetchInterval: autoRefresh ? 5000 : false,
+    refetchInterval: autoRefresh ? 2000 : false,
   });
 
   return (
@@ -49,35 +49,18 @@ export const Operator = () => {
           <tbody>
             {drones?.map((drone) => (
               <tr key={drone.droneId}>
-                <td>
-                  <a href={`/drone/${drone.droneId}`}>{drone.droneId}</a>
-                </td>
-                <td
-                  className={`${
-                    drone.batteryLevel > 50
-                      ? styles.green
-                      : drone.batteryLevel > 20
-                        ? styles.yellow
-                        : styles.red
-                  } ${styles.batteryLevel}`}
-                >
+                <td><a href={`/drone/${drone.droneId}`}>{drone.droneId}</a></td>
+                <td className={`${drone.batteryLevel > 50 ? styles.green : drone.batteryLevel > 20 ? styles.yellow : styles.red} ${styles.batteryLevel}`}>
                   {drone.batteryLevel}%
                 </td>
                 <td>{drone.status}</td>
-                <td>
-                  {DateUtils.format(drone.position.timestamp, "HH:mm:ss")}
-                </td>
-                <td>{drone.timeLeft !== undefined ? `${DateUtils.timeStringFromMinutes(drone.timeLeft)}` : "N/A"}</td>
+                <td>{DateUtils.format(drone.position.timestamp, "HH:mm:ss")}</td>
+                <td>{DateUtils.timeStringFromMinutes(drone.timeLeft)}</td>
                 <td><Link to={`/orders/${drone.orderId}`}>{drone.orderId}</Link></td>
                 <td>{drone.name}</td>
                 <td>{drone.model}</td>
                 <td>{drone.manufacturer}</td>
-
-
-                <td>
-                  {drone.maxCapacity.length}x{drone.maxCapacity.width}x
-                  {drone.maxCapacity.height}
-                </td>
+                <td>{drone.maxCapacity.length}x{drone.maxCapacity.width}x{drone.maxCapacity.height}</td>
                 <td>{drone.maxCapacity.weight}</td>
               </tr>
             ))}
@@ -87,15 +70,7 @@ export const Operator = () => {
 
       <div className={styles.map}>
         <DroneMap
-          position={
-            drones?.map(
-              (drone) =>
-                ({
-                  ...drone.position,
-                  droneId: drone.droneId,
-                }) as IDronePosition,
-            ) || []
-          }
+          position={drones?.map((drone) => ({ ...drone.position, droneId: drone.droneId }) as IDronePosition) || []}
         />
       </div>
     </div>

@@ -7,22 +7,15 @@ import droneRouter from "./src/routers/droneRouter.js";
 import orderRouter from "./src/routers/orderRouter.js";
 import "dotenv/config";
 
-//express setup
 const app = express();
-app.use(
-  cors({
-    origin: ["http://localhost:5173"],
-    credentials: true,
-  }),
-);
+app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
 app.use(express.json());
 
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.send("ok");
 });
 
 app.use(exampleMiddleware);
-
 app.use("/api/example", exampleRouter);
 app.use("/api/drone", droneRouter);
 app.use("/api/drone-position", dronePositionRouter);
@@ -35,7 +28,21 @@ app.listen(3000, (err) => {
 
 import mqttRouter from "./src/routers/mqtt/mqttRouter.js";
 import { client } from "./src/controllers/mqttController.js";
-// Starts MQTT endpoints
+import { startBatteryDrainTimer, resumeChargingDrones } from "./src/services/droneMovementService.js";
+import { deliveryQueueService } from "./src/services/deliveryQueueService.js";
+import { orders } from "./src/db/db.js";
+
+startBatteryDrainTimer();
+resumeChargingDrones();
+
+// Enqueue all seed orders at startup with a short stagger
+orders.forEach((order, index) => {
+  setTimeout(() => {
+    deliveryQueueService.addToQueue(order);
+    console.log(`Enqueued order ${order.id} (${order.firstName} ${order.lastName})`);
+  }, 2000 + index * 500);
+});
+
 if (process.env.MQTT_DEBUG) console.log("MQTT DEBUG ON");
 client.on("message", (topic, payload) => {
   if (process.env.MQTT_DEBUG)
@@ -43,6 +50,6 @@ client.on("message", (topic, payload) => {
   try {
     mqttRouter(topic, payload);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 });

@@ -10,12 +10,13 @@ export interface IDrone {
     maxCapacity: IDroneCapacity;
     status: DroneStatus;
     orderId?: number;
-    timeLeft?: number; // in minutes
+    timeLeft?: number;
 }
 
 export interface IDroneInsert extends Omit<IDrone, "droneId"> { }
 
-export type DroneStatus = "idle" | "in-flight" | "charging";
+export type DroneStatus = "idle" | "in-flight" | "returning" | "charging";
+
 export interface IDroneCapacity {
     length: number;
     width: number;

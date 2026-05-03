@@ -1,5 +1,7 @@
 import type { IDronePosition } from "./dronePositionModel.js";
 import type { IDroneCapacity } from "./droneCapacityModel.js";
+import type { IOrderLocation } from "./orderModel.js";
+
 export interface IDrone {
     droneId: number;
     name: string;
@@ -10,7 +12,9 @@ export interface IDrone {
     maxCapacity: IDroneCapacity;
     status: DroneStatus;
     orderId?: number;
-    timeLeft?: number; // in minutes
+    destination?: IOrderLocation;
+    departureTime?: number;
+    timeLeft?: number;
 }
 
 export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel" | "status"> {
@@ -18,4 +22,4 @@ export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel" | 
     status?: DroneStatus;
 }
 
-export type DroneStatus = "idle" | "in-flight" | "charging";
+export type DroneStatus = "idle" | "in-flight" | "returning" | "charging";

@@ -1,12 +1,11 @@
 export class DateUtils {
-
-  static timeStringFromMinutes(minutes: number): string {
+  static timeStringFromMinutes(minutes: number | undefined | null): string {
+    if (minutes == null) return "—";
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     const days = Math.floor(hours / 24);
-
-    if(hours < 1) return `${mins}m`;
-    if(hours < 24) return `${hours}h ${mins}m`;
+    if (hours < 1) return `${mins}m`;
+    if (hours < 24) return `${hours}h ${mins}m`;
     return `${days}d ${hours % 24}h ${mins}m`;
   }
 
