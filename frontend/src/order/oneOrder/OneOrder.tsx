@@ -9,7 +9,7 @@ import { DateUtils } from "../../utils/DateUtils";
 import { useState } from "react";
 
 export const OneOrder = () => {
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const { orderId } = useParams();
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", orderId],
@@ -32,17 +32,20 @@ export const OneOrder = () => {
 
         <section className={`${styles.section} ${styles.map}`}>
           <h2 className={styles.header}>Drone Route</h2>
-          <div className={styles.autoRefresh}>
-            <input
-              type="checkbox"
-              id="auto-refresh"
-              name="auto-refresh"
-              checked={autoRefresh}
-              onChange={(e) => setAutoRefresh(e.target.checked)}
-            />
-            <label htmlFor="auto-refresh">Auto-refresh</label>
-          </div>
-          <DroneRoute orderHistory={order.history} target={order.target} />
+                <div className={styles.autoRefresh}>
+        <input
+          type="checkbox"
+          id="auto-refresh"
+          name="auto-refresh"
+          checked={autoRefresh}
+          onChange={(e) => setAutoRefresh(e.target.checked)}
+        />
+        <label htmlFor="auto-refresh">Auto-refresh</label>
+      </div>
+          <DroneRoute
+            orderHistory={order.history}
+            target={order.target}
+          />
         </section>
 
         <section className={`${styles.section} ${styles.size}`}>

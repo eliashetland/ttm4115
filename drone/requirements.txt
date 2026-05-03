@@ -1,1 +1,4 @@
-stmpy>=0.7,<0.8
+numpy==2.4.4
+paho-mqtt==2.1.0
+pyudev==0.24.4
+stmpy==0.7.5

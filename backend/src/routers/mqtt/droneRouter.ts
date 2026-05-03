@@ -14,15 +14,20 @@ export function droneCreateMQTT(_topic: string, message: string) {
   } = JSON.parse(message.toString());
 
   const nonce = droneDetails?.nonce;
+
   let drone = droneDetails?.drone;
 
-  if (!drone || !nonce) return;
+  if (!drone || !nonce) {
+    return;
+  }
 
   drone = createDrone(drone);
   client.subscribe(`drones/${drone.droneId}/#`);
 
-  const response = JSON.stringify({ id: drone.droneId });
+  const response = JSON.stringify({id: drone.droneId});
+
   if (process.env.MQTT_DEBUG) console.log(response);
+
   client.publish(`drones/nonce/${nonce}/id`, response);
 }
 

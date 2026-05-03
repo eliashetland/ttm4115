@@ -30,24 +30,30 @@ export const AllOrders = () => {
         </tr>
       </thead>
       <tbody>
-        {orders?.map((order) => {
-          const latestStatus = [...order.history].reverse().find(h => h.type === "status") ?? order.history[0];
-          return (
-            <tr key={order.id}>
-              <td><Link to={`/orders/${order.id}`}>{order.id}</Link></td>
-              <td>{order.firstName}</td>
-              <td>{order.lastName}</td>
-              <td>{order.address}</td>
-              <td>{order.zip}</td>
-              <td>{order.city}</td>
-              <td>{order.length}x{order.width}x{order.height}</td>
-              <td>{order.weight}</td>
-              <td>{DateUtils.timeStringFromMinutes(order.deliveryTime)}</td>
-              <td>{latestStatus?.status}</td>
-              <td>{DateUtils.format(latestStatus?.createdAt, "yyyy-MM-dd HH:mm:ss")}</td>
-            </tr>
-          );
-        })}
+        {orders?.map((order) => (
+          <tr key={order.id}>
+            <td>
+              <Link to={`/orders/${order.id}`}>{order.id}</Link>
+            </td>
+            <td>{order.firstName}</td>
+            <td>{order.lastName}</td>
+            <td>{order.address}</td>
+            <td>{order.zip}</td>
+            <td>{order.city}</td>
+            <td>
+              {order.length}x{order.width}x{order.height}
+            </td>
+            <td>{order.weight}</td>
+            <td>{DateUtils.timeStringFromMinutes(order.deliveryTime)}</td>
+            <td>{order.history[0].status}</td>
+            <td>
+              {DateUtils.format(
+                order.history[0].createdAt,
+                "yyyy-MM-dd HH:mm:ss",
+              )}
+            </td>
+          </tr>
+        ))}
       </tbody>
     </table>
   );

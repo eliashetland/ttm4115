@@ -10,26 +10,26 @@ sequenceDiagram
     API->>API: Subscribe to drones/${ID from database}/#
 
     loop Every 5 minute until Ack
-        Drone->>Drone: Generate random nonce
+        Drone->>Drone: Generate nonce
 
-        Drone->>Drone: Subscribe drones/nonce/${nonce}/timestamp/${timestamp}/id
+        Drone->>Drone: Subscribe drones/nonce/${nonce}/id
 
-        Drone-)+API: Publish Drone Info + nonce + timestamp to drones/create
+        Drone-)+API: Publish Drone Info + nonce to drones/create
 
         API->>API: createDrone()
 
         API->>API: Subscribe drones/${ID}/#
 
-        API--)-Drone: Publish Drone ID to drones/nonce/${nonce}/timestamp/${timestamp}/id
+        API--)-Drone: Publish Drone ID to drones/nonce/${nonce}/id
 
         opt Got id
             Drone->>Drone: Subscribe drones/${ID}/#
 
-            Drone->>Drone: Unsubscribe drones/nonce/${nonce}/timestamp/${timestamp}/id
+            Drone->>Drone: Unsubscribe drones/nonce/${nonce}/id
 
-            Drone-)API: Publish Ack drones/${ID}/api
+            Drone-)API: Publish Ack drones/${ID}/drone-ack
 
-            API--)Drone: Publish Ack drones/${ID}/drone
+            API--)Drone: Publish Ack drones/${ID}/api-ack
         end
     end
 

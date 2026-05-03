@@ -39,6 +39,7 @@ export function createEmptyOrder(): IOrderInsert {
         lastName: "",
         address: "",
         zip: "",
+        status: "Created",
         city: "",
         length: 0,
         width: 0,

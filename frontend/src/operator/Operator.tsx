@@ -6,7 +6,11 @@ import { DateUtils } from "../utils/DateUtils";
 import { DroneMap } from "./DroneMap";
 import type { IDronePosition } from "../api/models/IDronePosition";
 import { useState } from "react";
+<<<<<<< HEAD
 import { Link } from "react-router-dom";
+=======
+import { Link } from "react-router";
+>>>>>>> origin/main
 
 export const Operator = () => {
   const [autoRefresh, setAutoRefresh] = useState(false);
@@ -54,13 +58,29 @@ export const Operator = () => {
                   {drone.batteryLevel}%
                 </td>
                 <td>{drone.status}</td>
+<<<<<<< HEAD
                 <td>{DateUtils.format(drone.position.timestamp, "HH:mm:ss")}</td>
                 <td>{DateUtils.timeStringFromMinutes(drone.timeLeft)}</td>
+=======
+                <td>
+                  {DateUtils.format(drone.position.timestamp, "HH:mm:ss")}
+                </td>
+                <td>{drone.timeLeft !== undefined ? `${DateUtils.timeStringFromMinutes(drone.timeLeft)}` : "N/A"}</td>
+>>>>>>> origin/main
                 <td><Link to={`/orders/${drone.orderId}`}>{drone.orderId}</Link></td>
                 <td>{drone.name}</td>
                 <td>{drone.model}</td>
                 <td>{drone.manufacturer}</td>
+<<<<<<< HEAD
                 <td>{drone.maxCapacity.length}x{drone.maxCapacity.width}x{drone.maxCapacity.height}</td>
+=======
+
+
+                <td>
+                  {drone.maxCapacity.length}x{drone.maxCapacity.width}x
+                  {drone.maxCapacity.height}
+                </td>
+>>>>>>> origin/main
                 <td>{drone.maxCapacity.weight}</td>
               </tr>
             ))}

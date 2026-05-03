@@ -6,7 +6,6 @@ import { DroneMap } from "../operator/DroneMap";
 import type { IDronePosition } from "../api/models/IDronePosition";
 import styles from "./Drone.module.css";
 import { useState } from "react";
-
 export const Drone = () => {
   const { droneId } = useParams();
   const [autoRefresh, setAutoRefresh] = useState(false);
