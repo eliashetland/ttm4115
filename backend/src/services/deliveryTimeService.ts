@@ -12,5 +12,8 @@ export function haversineDistance(lat1: number, lon1: number, lat2: number, lon2
 export const timeBetweenPoints = (lat1: number, lon1: number, lat2: number, lon2: number): number =>
     Math.ceil(haversineDistance(lat1, lon1, lat2, lon2) / DRONE_SPEED_KMH * 60);
 
+export const timeFromWarehouse = (targetLat: number, targetLng: number): number =>
+    Math.ceil(haversineDistance(WAREHOUSE_COORDS.latitude, WAREHOUSE_COORDS.longitude, targetLat, targetLng) / DRONE_SPEED_KMH * 60);
+
 export const calculateDeliveryTime = (targetLat: number, targetLng: number): number =>
     Math.ceil(haversineDistance(WAREHOUSE_COORDS.latitude, WAREHOUSE_COORDS.longitude, targetLat, targetLng) / DRONE_SPEED_KMH * 60);

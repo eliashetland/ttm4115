@@ -1,12 +1,10 @@
 import { drones, orders } from "../db/db.js";
 import type { IOrder, IOrderHistory, IOrderInsert, IOrderLocation } from "../models/orderModel.js";
 import { deliveryQueueService } from "../services/deliveryQueueService.js";
-import { calculateDeliveryTime } from "../services/deliveryTimeService.js";
+import { timeFromWarehouse } from "../services/deliveryTimeService.js";
 
 export const createOrder = (order: IOrderInsert) => {
     validateOrderData(order);
-
-    const deliveryTime = calculateDeliveryTime(order.target.latitude, order.target.longitude);
 
     const newOrder: IOrder = {
         id: orders.length > 0 ? orders[orders.length - 1]!.id + 1 : 1,
@@ -18,8 +16,8 @@ export const createOrder = (order: IOrderInsert) => {
             type: "status",
             message: "Order created and ready for processing"
         }],
+        deliveryTime: timeFromWarehouse(order.target.latitude, order.target.longitude),
         ...order,
-        deliveryTime
     };
 
     orders.push(newOrder);
