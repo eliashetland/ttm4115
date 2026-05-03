@@ -1,0 +1,31 @@
+import { DRONE_SPEED_KMH, TRONDHEIM_COORDINATES } from "../constants.js";
+
+// function to calculate distance between two coordinates using Haversine formula
+
+export function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+
+export const timeBetweenPoints = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const distance = haversineDistance(lat1, lon1, lat2, lon2);
+  return Math.ceil(distance / DRONE_SPEED_KMH * 60); // convert to minutes
+}
+export const timeFromWarehouse = (targetLat: number, targetLng: number): number => {
+  const distance = haversineDistance(TRONDHEIM_COORDINATES.latitude, TRONDHEIM_COORDINATES.longitude, targetLat, targetLng);
+  return Math.ceil(distance / DRONE_SPEED_KMH * 60); // convert to minutes
+}
+
+// calculate delivery time in minutes based on distance from warehouse and drone speed
+export const calculateDeliveryTime = (targetLat: number, targetLng: number): number => {
+  const distance = haversineDistance(TRONDHEIM_COORDINATES.latitude, TRONDHEIM_COORDINATES.longitude, targetLat, targetLng);
+  const timeHours = distance / DRONE_SPEED_KMH;
+  return Math.ceil(timeHours * 60); // Return in minutes, rounded up
+};

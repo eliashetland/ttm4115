@@ -1,0 +1,28 @@
+{
+  "nonce": 24,
+  "timestamp": 1777553417274,
+  "drone": {
+    "droneId": -1,
+    "name": "HAHA",
+    "model": "lmao",
+    "manufacturer": "bruther",
+    "batterylevel": 40,
+    "position": {
+      "latitude": 24,
+      "longitude": 14,
+      "altitude": 54,
+      "timestamp": 1777553417274
+    },
+    "maxCapacity": {
+      "maxWeight": 2,
+      "maxVolume": 3,
+      "currentLoad": 1,
+      "currentOrders": [],
+      "weight": 5,
+      "length": 3,
+      "width": 2,
+      "height": 6
+    },
+    "status": "idle"
+  }
+}

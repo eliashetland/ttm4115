@@ -1,6 +1,17 @@
 export class DateUtils {
-    
-	/**
+
+  static timeStringFromMinutes(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const days = Math.floor(hours / 24);
+
+    if(hours < 1) return `${mins}m`;
+    if(hours < 24) return `${hours}h ${mins}m`;
+    return `${days}d ${hours % 24}h ${mins}m`;
+  }
+
+
+  /**
 	 * yy   = 2-digit year
 	 * 
 	 * yyyy = 4-digit year
@@ -38,31 +49,53 @@ export class DateUtils {
     
 	 * @returns 
 	 */
-	static format(date: Date | string, format: string): string {
-		const optionsLongMonth = { month: "long" } as const;
-		const optionsShortMonth = { month: "short" } as const;
-		const optionsLongDay = { weekday: "long" } as const;
-		const optionsShortDay = { weekday: "short" } as const;
+  static format(date: Date | string | number, format: string): string {
+    const optionsLongMonth = { month: "long" } as const;
+    const optionsShortMonth = { month: "short" } as const;
+    const optionsLongDay = { weekday: "long" } as const;
+    const optionsShortDay = { weekday: "short" } as const;
 
-        const dateObj = typeof date === "string" ? new Date(date) : date;
+    let dateObj;
 
-		const map: { [key: string]: string } = {
-			yyyy: dateObj.getFullYear().toString(),
-			yy: dateObj.getFullYear().toString().slice(-2),
-			M: (dateObj.getMonth() + 1).toString(),
-			MM: ("0" + (dateObj.getMonth() + 1)).slice(-2),
-			d: dateObj.getDate().toString(),
-			dd: ("0" + dateObj.getDate()).slice(-2),
-			HH: ("0" + dateObj.getHours()).slice(-2),
-			mm: ("0" + dateObj.getMinutes()).slice(-2),
-			ss: ("0" + dateObj.getSeconds()).slice(-2),
-			fff: ("00" + dateObj.getMilliseconds()).slice(-3),
-			MMM: new Intl.DateTimeFormat(undefined, optionsShortMonth).format(dateObj),
-			MMMM: new Intl.DateTimeFormat(undefined, optionsLongMonth).format(dateObj),
-			E: new Intl.DateTimeFormat(undefined, optionsShortDay).format(dateObj),
-			EEEE: new Intl.DateTimeFormat(undefined, optionsLongDay).format(dateObj),
-		};
+    switch (typeof date) {
+      case "string":
+        dateObj = new Date(date);
+        break;
+      case "number":
+        dateObj = new Date(date);
+        break;
+      case "object":
+        dateObj = new Date(date);
+        break;
+      default:
+        console.log("Date is not a string, number or an object");
+        return "INVALID DATE DATA";
+    }
 
-		return format.replace(/yyyy|yy|M{1,4}|d{1,2}|HH|mm|ss|fff|E{1,4}/gi, (matched) => map[matched]);
-	}
+    const map: { [key: string]: string } = {
+      yyyy: dateObj.getFullYear().toString(),
+      yy: dateObj.getFullYear().toString().slice(-2),
+      M: (dateObj.getMonth() + 1).toString(),
+      MM: ("0" + (dateObj.getMonth() + 1)).slice(-2),
+      d: dateObj.getDate().toString(),
+      dd: ("0" + dateObj.getDate()).slice(-2),
+      HH: ("0" + dateObj.getHours()).slice(-2),
+      mm: ("0" + dateObj.getMinutes()).slice(-2),
+      ss: ("0" + dateObj.getSeconds()).slice(-2),
+      fff: ("00" + dateObj.getMilliseconds()).slice(-3),
+      MMM: new Intl.DateTimeFormat(undefined, optionsShortMonth).format(
+        dateObj,
+      ),
+      MMMM: new Intl.DateTimeFormat(undefined, optionsLongMonth).format(
+        dateObj,
+      ),
+      E: new Intl.DateTimeFormat(undefined, optionsShortDay).format(dateObj),
+      EEEE: new Intl.DateTimeFormat(undefined, optionsLongDay).format(dateObj),
+    };
+
+    return format.replace(
+      /yyyy|yy|M{1,4}|d{1,2}|HH|mm|ss|fff|E{1,4}/gi,
+      (matched) => map[matched],
+    );
+  }
 }

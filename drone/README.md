@@ -18,3 +18,15 @@ docker compose run --rm drone sh
 ```
 
 The notebooks in `fsm/` are kept in the repository, but this Docker setup does not run Jupyter.
+
+## Remote Controller for simulated Mocks
+
+It is now possible to simulate the joysticks on the mocks throug the remote_controller.py
+
+```bash
+python remote_controller.py
+```
+
+## Id management on the drone
+
+The id is either set manually in the drone_id file under /home/pi/drone_id, or it gets automatically assigned from the server when requested.

@@ -6,6 +6,19 @@ export interface IDrone {
     model: string;
     manufacturer: string;
     position: IDronePosition;
+    batteryLevel: number;
+    maxCapacity: IDroneCapacity;
+    status: DroneStatus;
+    orderId?: number;
+    timeLeft?: number; // in minutes
 }
 
 export interface IDroneInsert extends Omit<IDrone, "droneId"> { }
+
+export type DroneStatus = "idle" | "in-flight" | "charging";
+export interface IDroneCapacity {
+    length: number;
+    width: number;
+    height: number;
+    weight: number;
+}

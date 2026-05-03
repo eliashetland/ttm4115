@@ -1,18 +1,29 @@
 services:
   drone:
     build: ./drone
+    environment:
+      RUNNING_IN_DOCKER: 1
+    deploy:
+      replicas: 5
+    env_file:
+      - path: MQTT.env
     volumes:
       - ./drone:/workspace
+     # - ./drone/drone_id:/home/pi/drone_id
 
   backend:
     build: ./backend
     ports:
       - "3000:3000"
+    env_file:
+      - path: MQTT.env
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 5s
       timeout: 3s
       retries: 5
+    depends_on:
+      - broker
 
   frontend:
     build: ./frontend
@@ -21,3 +32,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+
+  broker:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"

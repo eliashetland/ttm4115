@@ -1,0 +1,66 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  text-align: left;
+  padding: 20px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.container section {
+  flex: 1;
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 300px;
+  gap: 12px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field span {
+  font-size: 12px;
+}
+
+.field p {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+}
+.map {
+  padding: 0 20px;
+}
+
+.red {
+  color: red !important;
+}
+
+.green {
+  color: green !important;
+}
+
+.orange {
+  color: orange !important;
+}
+
+.autoRefresh {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+.autoRefresh input {
+  width: 20px;
+}

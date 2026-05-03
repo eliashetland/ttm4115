@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { ApiClient } from "../../api/ApiClient";
 import type { IOrder } from "../../api/models/IOrder";
 import styles from "./AllOrders.module.css";
@@ -22,6 +23,7 @@ export const AllOrders = () => {
           <th>City</th>
           <th>Size(cm)</th>
           <th>Weight(kg)</th>
+          <th>Delivery Time</th>
           <th>Status</th>
           <th>Last update</th>
         </tr>
@@ -30,7 +32,7 @@ export const AllOrders = () => {
         {orders?.map((order) => (
           <tr key={order.id}>
             <td>
-              <a href={`/orders/${order.id}`}>{order.id}</a>
+              <Link to={`/orders/${order.id}`}>{order.id}</Link>
             </td>
             <td>{order.firstName}</td>
             <td>{order.lastName}</td>
@@ -41,9 +43,13 @@ export const AllOrders = () => {
               {order.length}x{order.width}x{order.height}
             </td>
             <td>{order.weight}</td>
+            <td>{DateUtils.timeStringFromMinutes(order.deliveryTime)}</td>
             <td>{order.history[0].status}</td>
             <td>
-              {DateUtils.format(order.history[0].createdAt, "yyyy-MM-dd HH:mm:ss")}
+              {DateUtils.format(
+                order.history[0].createdAt,
+                "yyyy-MM-dd HH:mm:ss",
+              )}
             </td>
           </tr>
         ))}

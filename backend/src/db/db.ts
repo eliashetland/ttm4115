@@ -8,10 +8,11 @@ export const drones: IDrone[] = [
         name: "Drone 1",
         model: "Model A",
         manufacturer: "Manufacturer X",
+        orderId: 1,
         batteryLevel: 100,
         position: {
-            latitude: 37.7749,
-            longitude: -122.4194,
+            latitude: 63.415808,
+            longitude: 10.416744,
             altitude: 100,
             timestamp: new Date().toISOString(),
         },
@@ -19,46 +20,63 @@ export const drones: IDrone[] = [
             length: 100,
             width: 100,
             height: 100,
-            weight: 10
-        }
+            weight: 10,
+            maxWeight: 10,
+            maxVolume: 1000000,
+            currentLoad: 0,
+            currentOrders: []
+        },
+        status: "in-flight"
+
     },
     {
         droneId: 2,
         name: "Drone 2",
         model: "Model B",
         manufacturer: "Manufacturer Y",
-        batteryLevel: 70,
+        batteryLevel: 40,
         position: {
-            latitude: 34.0522,
-            longitude: -118.2437,
+            latitude: 63.416808,
+            longitude: 10.396744,
             altitude: 150,
             timestamp: new Date().toISOString(),
         },
-         maxCapacity: { //cm
+        maxCapacity: { //cm
             length: 50,
             width: 50,
             height: 300,
-            weight: 15
+            weight: 15,
+            maxWeight: 15,
+            maxVolume: 750000,
+            currentLoad: 0,
+            currentOrders: []
         }
+        ,
+        status: "in-flight"
     },
     {
         droneId: 3,
         name: "Drone 3",
         model: "Model C",
         manufacturer: "Manufacturer Z",
-        batteryLevel: 30,
+        batteryLevel: 20,
         position: {
-            latitude: 40.7128,
-            longitude: -74.0060,
+            latitude: 63.425808,
+            longitude: 10.448744,
             altitude: 200,
             timestamp: new Date().toISOString(),
         },
-         maxCapacity: { //cm
+        maxCapacity: { //cm
             length: 200,
             width: 200,
             height: 200,
-            weight: 25
-        }
+            weight: 25,
+            maxWeight: 25,
+            maxVolume: 8000000,
+            currentLoad: 0,
+            currentOrders: []
+        },
+        status: "charging"
     }
 ]
 
@@ -94,6 +112,8 @@ export const orders: IOrder[] = [
         width: 5,
         height: 2,
         weight: 1.5,
+
+        status: "In Transit",
         target: {
             latitude: 63.394284,
             longitude: 10.419027,

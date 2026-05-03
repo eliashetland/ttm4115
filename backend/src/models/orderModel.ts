@@ -10,8 +10,10 @@ export interface IOrder {
     width: number;
     height: number;
     weight: number;
+    status: "Created" | "In Transit" | "Delivered";
     history: IOrderHistory[];
     target: IOrderLocation;
+    deliveryTime?: number; // in minutes
 }
 
 
@@ -29,4 +31,4 @@ export interface IOrderLocation {
     description: string;
 }
 
-export interface IOrderInsert extends Omit<IOrder, "id" | "history"> { }
+export interface IOrderInsert extends Omit<IOrder, "id" | "history" | "deliveryTime"> { }
