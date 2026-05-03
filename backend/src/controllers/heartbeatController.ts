@@ -66,6 +66,6 @@ export const updateDroneFromHeartbeat = (
 
 const validateHeartbeatData = (droneId: number, batteryLevel: number, dronePosition: IDronePosition) => {
     if (!droneId || batteryLevel < 0 || batteryLevel > 100) return false;
-    if (typeof dronePosition.latitude !== "number" || typeof dronePosition.longitude !== "number" || typeof dronePosition.altitude !== "number") return false;
+    if (typeof dronePosition.latitude !== "number" || typeof dronePosition.longitude !== "number") return false;
     return true;
 };

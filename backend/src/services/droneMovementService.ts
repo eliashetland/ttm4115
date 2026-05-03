@@ -67,7 +67,6 @@ export const startDroneDelivery = (droneId: number): void => {
         d.position = {
             latitude:  startLat + (destLat - startLat) * t,
             longitude: startLon + (destLon - startLon) * t,
-            altitude:  100,
             timestamp: new Date().toISOString(),
         };
 
@@ -169,7 +168,6 @@ function returnToBase(droneId: number): void {
         d.position = {
             latitude:  fromLat + (WAREHOUSE_COORDS.latitude  - fromLat) * t,
             longitude: fromLon + (WAREHOUSE_COORDS.longitude - fromLon) * t,
-            altitude:  100,
             timestamp: new Date().toISOString(),
         };
 

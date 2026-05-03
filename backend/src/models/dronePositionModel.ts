@@ -2,7 +2,6 @@
 export interface IDronePosition {
     latitude: number;
     longitude: number;
-    altitude: number;
     timestamp: string;
 }
 

@@ -13,7 +13,6 @@ export function heartbeatMQTT(topic: string, message: string) {
   const res = updateDroneFromHeartbeat(id, battery_level, {
     latitude: gps.latitude,
     longitude: gps.longitude,
-    altitude: 100,
     timestamp: timestamp,
   }, state);
 

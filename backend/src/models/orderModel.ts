@@ -11,7 +11,6 @@ export interface IOrder {
     height: number;
     weight: number;
     status: "Created" | "In Transit" | "Delivered";
-    status: "Created" | "In Transit" | "Delivered";
     history: IOrderHistory[];
     target: IOrderLocation;
     deliveryTime: number;

@@ -28,7 +28,7 @@ dronePositionRouter.put("/:droneId", (req, res) => {
         return res.status(400).json({ message: "Invalid position data" });
     }
 
-    const newPosition: IDronePositionInsert = { latitude, longitude, altitude };
+    const newPosition: IDronePositionInsert = { latitude, longitude};
 
     const updatedPosition = updateDronePosition(id, newPosition);
     if (!updatedPosition) {
