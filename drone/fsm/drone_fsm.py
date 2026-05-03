@@ -4,14 +4,17 @@ import paho.mqtt.client as mqtt
 import json
 from datetime import datetime
 import numpy as np
-from sense_hat import SenseHat
+#from sense_hat import SenseHat
+#import pyudev
+from hardware import SenseHat, pyudev
 import time
-import pyudev
 import os
+from services import getId, loadId, saveId
 
 # region permanent variables and startup [rgb(128, 128, 128, 0.1)]
-id = 1
+id = loadId()
 
+#sense = SenseHat()
 sense = SenseHat()
 sense.low_light = True
 sense.clear()
@@ -28,7 +31,94 @@ black = (0, 0, 0)
 blue = (0, 0, 255)
 white = (255, 255, 255)
 
-def led_id(colour):
+# Number mask for Id numbers:
+DIGITS = {
+    "0": [
+        "111",
+        "101",
+        "101",
+        "101",
+        "111"
+    ],
+    "1": [
+        "010",
+        "110",
+        "010",
+        "010",
+        "111"
+    ],
+    "2": [
+        "111",
+        "001",
+        "111",
+        "100",
+        "111"
+    ],
+    "3": [
+        "111",
+        "001",
+        "111",
+        "001",
+        "111"
+    ],
+    "4": [
+        "101",
+        "101",
+        "111",
+        "001",
+        "001"
+    ],
+    "5": [
+        "111",
+        "100",
+        "111",
+        "001",
+        "111"
+    ],
+    "6": [
+        "111",
+        "100",
+        "111",
+        "101",
+        "111"
+    ],
+    "7": [
+        "111",
+        "001",
+        "010",
+        "010",
+        "010"
+    ],
+    "8": [
+        "111",
+        "101",
+        "111",
+        "101",
+        "111"
+    ],
+    "9": [
+        "111",
+        "101",
+        "111",
+        "001",
+        "111"
+    ]
+}
+
+def led_id(number, colour=(255,0,255)):
+    num_str = str(int(number)).zfill(2)
+
+    sense.clear()
+
+    for i, digit in enumerate(num_str):
+        pattern = DIGITS[digit]
+
+        for y, row in enumerate(pattern):
+            for x, val in enumerate(row):
+                if val == "1":
+                    sense.set_pixel(x + i*4 + 1, y + 1, colour)
+
+""" def led_id(colour):
     sense.set_pixel(4,1,colour)
     sense.set_pixel(3,2,colour)
     sense.set_pixel(4,2,colour)
@@ -37,9 +127,23 @@ def led_id(colour):
     sense.set_pixel(4,5,colour)
     sense.set_pixel(3,6,colour)
     sense.set_pixel(4,6,colour)
-    sense.set_pixel(5,6,colour)
+    sense.set_pixel(5,6,colour) """
 
-led_id(white)
+def setId(newId):
+    global id
+    id = newId
+    led_id(id, white)
+    saveId(id)
+
+# Get id if not persistent memory
+if id < 1:
+    getId(setId)
+else:
+    led_id(id, white)
+
+print("Id is:", id)
+
+#led_id(white)
 
 station = {'latitude' : 63.415808,
             'longitude' : 10.406744}
@@ -617,7 +721,7 @@ class MQTT_Client_1:
             print("Interrupted")
             self.client.disconnect()
 
-broker, port = "mqtt20.iik.ntnu.no", 1883
+broker, port = os.getenv("MQTT_HOST", "mqtt20.iik.ntnu.no"), int(os.getenv("MQTT_PORT", "1883"))
 
 myclient = MQTT_Client_1()
 heartbeat_machine.client = myclient.client
@@ -637,23 +741,30 @@ monitor.start()
 
 #joystick
 try:
-	while True:
-		for event in sense.stick.get_events():
-		# Check if the joystick was pressed
-			if event.action == "pressed":
-				# Check which direction
-				if event.direction == "left": 
-					battery_machine.send("left")      # Left arrow
-				elif event.direction == "right":
-					battery_machine.send("right")      # Right arrow
-				elif event.direction == "middle":
-					drone_status_machine.send("middle")      # Enter key 
-		device = monitor.poll(timeout=0.1)
-		if device is not None and device.action == 'add':
-			drone_status_machine.send("usb_in")
-		elif device is not None and device.action == 'remove':
-			drone_status_machine.send("usb_out")
+    while True:
+        for event in sense.stick.get_events():
+            # Check if the joystick was pressed
+            if event.action == "pressed":
+                # Check which direction
+                if event.direction == "left":
+                    battery_machine.send("left")
+                elif event.direction == "right":
+                    battery_machine.send("right")
+                elif event.direction == "middle":
+                    drone_status_machine.send("middle")
+
+        device = monitor.poll(timeout=0.1)
+        if device is not None:
+            print("device:", device)
+            print("action:", device.action)
+            print("subsystem:", device.subsystem)
+        
+        if device is not None and device.action == "add":
+            drone_status_machine.send("usb_in")
+        elif device is not None and device.action == "remove":
+            drone_status_machine.send("usb_out")
 except KeyboardInterrupt:
+    print("AN ERROR HAS OCCURED")
     sense.clear()
     driver.stop()
 # endregion

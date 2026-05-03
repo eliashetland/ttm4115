@@ -56,6 +56,10 @@ class RemoteGUI:
     def send_joystick(self, direction):
         self.client.publish(f"drones/{self.id.get()}/joystick/add", direction)
         print("Sent joystick:", direction)
+    
+    def send_usb(self, action):
+        self.client.publish(f"drones/{self.id.get()}/usb/action", action)
+        print("Sent usb:", action)
 
     def clear_led(self):
         self.client.publish("sense/clear", "1")
@@ -78,6 +82,16 @@ class RemoteGUI:
         id_frame = tk.LabelFrame(self.root, text="Drone ID")
         id_frame.pack(padx=10, pady=10)
         tk.Spinbox(id_frame, from_=1, to=99, textvariable=self.id, width=5).pack()
+
+        usb_frame = tk.LabelFrame(self.root, text="USB")
+        usb_frame.pack(padx=10, pady=10)
+
+        tk.Button(
+            usb_frame, text="Add USB", width=10, command=lambda: self.send_usb("add")
+        ).grid(row=0, column=0)
+        tk.Button(
+            usb_frame, text="Remove USB", width=10, command=lambda: self.send_usb("remove")
+        ).grid(row=1, column=0)
 
         joystick_frame = tk.LabelFrame(self.root, text="Joystick")
         joystick_frame.pack(padx=10, pady=10)

@@ -36,7 +36,6 @@ class SenseMock(SenseInterface):
         )
         self.client.loop_start()
         self.led_matrix = [[(0, 0, 0) for _ in range(8)] for _ in range(8)]
-        print("Running with MOCK SenseHat 🧪")
 
     def on_connect(self, client, userdata, flags, rc):
         print("MQTT connected:", mqtt.connack_string(rc))
