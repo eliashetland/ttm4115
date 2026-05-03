@@ -417,7 +417,8 @@ def create_battery_machine():
     t_dead = {
          "trigger": "left",
          "source": "battery_5",
-         "target": "battery_0"
+         "target": "final",
+         "effect": "dead"
     }
 
     t01 = {
@@ -505,16 +506,11 @@ def create_battery_machine():
         'entry': 'battery_5; start_timer("t_b", 500)',
         'exit' : 'stop_timer("t_b")'
     }
-
-    battery_0 = {
-         'name': 'battery_0',
-         'entry': 'dead'
-    }
     #endregion
 
     battery =  Battery(sense)
     machine = Machine(transitions=[t0, t00, t01, t12, t23, t34, t45, t56, t67, t78, t87, t76, t65, t54, t43, t32, t21, t10, t_dead],
-                      states=[battery_100, battery_87_5, battery_75, battery_62_5, battery_50, battery_37_5, battery_25, battery_12_5, battery_5, battery_0],
+                      states=[battery_100, battery_87_5, battery_75, battery_62_5, battery_50, battery_37_5, battery_25, battery_12_5, battery_5],
                       obj=battery,
                       name="battery")
     battery.stm = machine
