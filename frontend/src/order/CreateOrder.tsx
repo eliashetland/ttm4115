@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import styles from "./CreateOrder.module.css";
-import { createEmptyOrder, type IOrderInsert } from "../api/models/IOrder";
+import { createEmptyOrder, type IOrder, type IOrderInsert } from "../api/models/IOrder";
 import { ApiClient } from "../api/ApiClient";
 import { AllOrders } from "./allOrders/AllOrders";
 
@@ -12,6 +13,7 @@ export const CreateOrder = () => {
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [deliveryTime, setDeliveryTime] = useState<number | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<IOrder | null>(null);
 
   const errors = {
     weight: formData.weight > MAX_WEIGHT_KG ? `Max weight is ${MAX_WEIGHT_KG} kg` : null,
@@ -38,6 +40,8 @@ export const CreateOrder = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError(null);
+
+    const snapshot = { ...formData };
 
     if (hasErrors) {
       const messages = Object.values(errors).filter(Boolean).join(", ");
@@ -70,19 +74,30 @@ export const CreateOrder = () => {
     const timeRes: { deliveryTime: number } = await ApiClient.post("/order/estimate-time", [], { latitude: lat, longitude: lng });
     setDeliveryTime(timeRes.deliveryTime);
 
-    ApiClient.post("/order", ["order"], {
+    ApiClient.post<IOrder>("/order", ["order"], {
       ...formData,
       target: { latitude: lat, longitude: lng, description: address },
     })
       .then((createdOrder) => {
-        console.log("Created order", createdOrder);
         setFormData(createEmptyOrder());
         setCoordinates(null);
         setDeliveryTime(null);
         setFormError(null);
+        setConfirmedOrder({
+          ...snapshot,
+          id: createdOrder.id,
+          status: "Created",
+          deliveryTime: timeRes.deliveryTime,
+          history: [],
+          target: { latitude: lat, longitude: lng, description: address },
+        });
       })
-      .catch((err) => {
-        setFormError("Failed to create order. Please try again.");
+      .catch(async (err) => {
+        let message = "Failed to create order. Please try again.";
+        if (err instanceof Response) {
+          try { const b = await err.json(); if (b.message) message = b.message; } catch { /* ignore */ }
+        }
+        setFormError(message);
         console.error("Failed to create order", err);
       });
   };
@@ -90,6 +105,41 @@ export const CreateOrder = () => {
   return (
     <div className={styles.container}>
       <div className={styles.maxWidth}>
+
+        {confirmedOrder && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <h2 className={styles.modalTitle}>Order Confirmed!</h2>
+              <div className={styles.modalRow}>
+                <span>Order number</span>
+                <strong>#{confirmedOrder.id}</strong>
+              </div>
+              <div className={styles.modalRow}>
+                <span>Receiver</span>
+                <strong>{confirmedOrder.firstName} {confirmedOrder.lastName}</strong>
+              </div>
+              <div className={styles.modalRow}>
+                <span>Address</span>
+                <strong>{confirmedOrder.address}, {confirmedOrder.zip} {confirmedOrder.city}</strong>
+              </div>
+              <div className={styles.modalRow}>
+                <span>Package</span>
+                <strong>{confirmedOrder.length}×{confirmedOrder.width}×{confirmedOrder.height} cm, {confirmedOrder.weight} kg</strong>
+              </div>
+              <div className={styles.modalRow}>
+                <span>Estimated delivery</span>
+                <strong>{confirmedOrder.deliveryTime} minutes</strong>
+              </div>
+              <div className={styles.modalActions}>
+                <Link to={`/orders/${confirmedOrder.id}`} className={styles.trackLink}>
+                  Track order
+                </Link>
+                <button onClick={() => setConfirmedOrder(null)}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <form className={styles.form} onSubmit={handleSubmit}>
           <section className={styles.name}>
             <h2>Sender</h2>
