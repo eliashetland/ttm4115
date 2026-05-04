@@ -9,7 +9,7 @@ client = mqtt.Client()
 
 broker = os.getenv("MQTT_HOST", "localhost")
 port = int(os.getenv("MQTT_PORT", "1883"))
-drone_file = "/home/pi/drone_id"
+drone_file = "drone_id"
 
 client.connect(broker, port)
 client.loop_start()
