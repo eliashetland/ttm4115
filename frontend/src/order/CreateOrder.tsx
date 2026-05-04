@@ -228,14 +228,6 @@ export const CreateOrder = () => {
           </button>
         </form>
 
-        {coordinates && deliveryTime && (
-          <div className={styles.deliveryInfo}>
-            <h3>Delivery Information</h3>
-            <p>Coordinates: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}</p>
-            <p>Estimated delivery time: {deliveryTime} minutes</p>
-          </div>
-        )}
-
         <div className={styles.orders}>
           <h3>All Orders</h3>
           <div className={styles.allOrders}>

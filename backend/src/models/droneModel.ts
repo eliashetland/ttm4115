@@ -11,7 +11,7 @@ export interface IDrone {
     position: IDronePosition;
     maxCapacity: IDroneCapacity;
     status: DroneStatus;
-    orderId?: number;
+    orderId?: number | null;
     destination?: IOrderLocation;
     departureTime?: number;
     timeLeft?: number;
@@ -22,4 +22,4 @@ export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel" | 
     status?: DroneStatus;
 }
 
-export type DroneStatus = "idle" | "in-flight" | "returning" | "charging";
+export type DroneStatus = "drop_off" | "on_the_way_back" | "charging" | "waiting_for_job" | "order_received" | "on_the_way";

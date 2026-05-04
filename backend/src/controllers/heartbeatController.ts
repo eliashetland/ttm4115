@@ -1,32 +1,57 @@
 import { drones, orders } from "../db/db.js";
 import type { IDronePosition } from "../models/dronePositionModel.js";
 import type { DroneStatus } from "../models/droneModel.js";
-import { isDroneMoving } from "../services/droneMovementService.js";
-function mapDroneState(state: string): DroneStatus {
-    switch (state) {
-        case "delivering":
-        case "drop_of":
-        case "returning":
-            return "in-flight";
-        case "charging":
-            return "charging";
-        default:
-            return "idle";
-    }
-}
 
 export const updateDroneFromHeartbeat = (
     droneId: number,
     batteryLevel: number,
     dronePosition: IDronePosition,
-    state: string
+    state: DroneStatus,
+    orderId?: number
 ) => {
     if (!validateHeartbeatData(droneId, batteryLevel, dronePosition)) return null;
 
-    const drone = drones.find(d => d.droneId === droneId);
-    if (!drone) return null;
+    if( droneId === 4) return;
 
-    if (state === "drop_of" && drone.orderId) {
+    if (droneId === 5) {
+        console.log(droneId, batteryLevel, dronePosition, state);
+
+    }
+
+    let drone = drones.find(d => d.droneId === droneId);
+    if (!drone) {
+        drone =
+        {
+            droneId,
+            batteryLevel,
+            position: dronePosition,
+            status: state,
+            name: `Drone ${droneId}`,
+            manufacturer: "DJI",
+            model: "Mavic 4 Pro",
+            maxCapacity: { weight: 25, length: 200, width: 200, height: 200 },
+
+        }
+        drones.push(drone);
+        console.log("added drone");
+
+    };
+
+    // console.log(drone);
+
+
+    drone.batteryLevel = batteryLevel;
+    drone.position = dronePosition;
+    drone.status = state;
+    drone.orderId = orderId ?? null;
+
+
+    if (state === "charging" || state === "waiting_for_job" || state === "on_the_way_back") {
+        drone.orderId = null;
+    }
+
+
+    if (state === "drop_off" && drone.orderId) {
         const order = orders.find(o => o.id === drone.orderId);
         if (order) {
             order.status = "Delivered";
@@ -53,14 +78,6 @@ export const updateDroneFromHeartbeat = (
             });
         }
     }
-
-    // Don't override position/battery while simulation is managing this drone
-    if (!isDroneMoving(droneId)) {
-        drone.batteryLevel = batteryLevel;
-        drone.position = dronePosition;
-        drone.status = mapDroneState(state);
-    }
-
     return drone;
 };
 

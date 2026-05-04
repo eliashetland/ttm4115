@@ -1,3 +1,4 @@
+import { getMqttClient } from "../controllers/mqttController.js";
 import type { IDrone } from "../models/droneModel.js";
 import type { IOrder } from "../models/orderModel.js";
 
@@ -10,9 +11,9 @@ export const canDroneCarryOrder = (drone: IDrone, order: IOrder): boolean => {
 
 export const selectBestDrone = (drones: IDrone[], order: IOrder): IDrone | null => {
     const candidates = drones.filter(drone =>
-        (drone.status === "idle" || drone.status === "charging") &&
+        (drone.status === "waiting_for_job") &&
         !drone.orderId &&
-        drone.batteryLevel > 20 &&
+        drone.batteryLevel > 50 &&
         canDroneCarryOrder(drone, order)
     );
     if (candidates.length === 0) return null;
@@ -20,8 +21,15 @@ export const selectBestDrone = (drones: IDrone[], order: IOrder): IDrone | null 
 };
 
 export const assignOrderToDrone = (drone: IDrone, order: IOrder): void => {
+    const client = getMqttClient();
+
+    client.publish(`09/give_job/${drone.droneId}`, JSON.stringify({ order_id: order.id, target: order.target }));
+
+    console.log("assign order "+ order.id + " to " + drone.droneId);
+    
     drone.orderId = order.id;
-    drone.status = "in-flight";
+    drone.status = "order_received";
     drone.destination = order.target;
     drone.departureTime = Date.now();
+
 };

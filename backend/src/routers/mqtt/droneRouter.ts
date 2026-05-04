@@ -1,7 +1,8 @@
-import { client } from "../../controllers/mqttController.js";
+import { getMqttClient } from "../../controllers/mqttController.js";
 import { createDrone, getDrone } from "../../controllers/droneController.js";
 import type { IDrone } from "../../models/droneModel.js";
 
+const client = getMqttClient();
 client.subscribe(`drones/create`);
 getDrone().forEach((drone) => {
   client.subscribe(`drones/${drone.droneId}/drone-ack`);
@@ -22,7 +23,7 @@ export function droneCreateMQTT(_topic: string, message: string) {
   client.subscribe(`drones/${drone.droneId}/#`);
 
   const response = JSON.stringify({ id: drone.droneId });
-  if (process.env.MQTT_DEBUG) console.log(response);
+  // if (process.env.MQTT_DEBUG) console.log(response);
   client.publish(`drones/nonce/${nonce}/id`, response);
 }
 

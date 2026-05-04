@@ -3,53 +3,7 @@ import type { IOrder } from "../models/orderModel.js";
 import { WAREHOUSE_COORDS } from "../constants.js";
 import { calculateDeliveryTime } from "../services/deliveryTimeService.js";
 
-export const drones: IDrone[] = [
-    {
-        droneId: 1,
-        name: "Drone 1",
-        model: "Model A",
-        manufacturer: "Manufacturer X",
-        batteryLevel: 100,
-        position: {
-            latitude: WAREHOUSE_COORDS.latitude,
-            longitude: WAREHOUSE_COORDS.longitude,
-            altitude: WAREHOUSE_COORDS.altitude,
-            timestamp: new Date().toISOString(),
-        },
-        maxCapacity: { length: 100, width: 100, height: 100, weight: 10 },
-        status: "idle"
-    },
-    {
-        droneId: 2,
-        name: "Drone 2",
-        model: "Model B",
-        manufacturer: "Manufacturer Y",
-        batteryLevel: 100,
-        position: {
-            latitude: WAREHOUSE_COORDS.latitude,
-            longitude: WAREHOUSE_COORDS.longitude,
-            altitude: WAREHOUSE_COORDS.altitude,
-            timestamp: new Date().toISOString(),
-        },
-        maxCapacity: { length: 50, width: 50, height: 200, weight: 15 },
-        status: "idle"
-    },
-    {
-        droneId: 3,
-        name: "Drone 3",
-        model: "Model C",
-        manufacturer: "Manufacturer Z",
-        batteryLevel: 100,
-        position: {
-            latitude: WAREHOUSE_COORDS.latitude,
-            longitude: WAREHOUSE_COORDS.longitude,
-            altitude: WAREHOUSE_COORDS.altitude,
-            timestamp: new Date().toISOString(),
-        },
-        maxCapacity: { length: 200, width: 200, height: 200, weight: 25 },
-        status: "idle"
-    }
-];
+export const drones: IDrone[] = [];
 
 export const orders: IOrder[] = [
     {

@@ -25,7 +25,7 @@ export default function mqttRouter(
   const strId = topic.split("/").at(1);
   const id = parseInt(strId ? strId : "");
 
-  if(process.env.MQTT_DEBUG && isNaN(id)) console.log(`drones/${id}/droneAck`)
+  // if(process.env.MQTT_DEBUG && isNaN(id)) console.log(`drones/${id}/droneAck`)
 
   let strMessage = message.toString();
 
