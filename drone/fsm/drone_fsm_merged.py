@@ -1,3 +1,5 @@
+import threading
+
 from stmpy import Driver, Machine
 from threading import Thread
 import paho.mqtt.client as mqtt
@@ -24,27 +26,23 @@ client.loop_start()
 
 drone = {
     "droneId": -1,
-    "name": "Example Drone",
-    "model": "Example Model",
-    "manufacturer": "Example Manufacturer",
-    "batterylevel": 40,
+    "name": "Pelikan",
+    "model": "Phantom 4 Pro",
+    "manufacturer": "DJI",
+    "battery_level": 90,
     "position": {
-      "latitude": 24,
-      "longitude": 14,
-      "altitude": 54,
-      "timestamp": int(time.time())
+      "latitude": 63.415777440500655,
+      "longitude": 10.406715511683895,
+      "altitude": 100,
+      "timestamp": datetime.now().timestamp()
     },
     "maxCapacity": {
-      "maxWeight": 2,
-      "maxVolume": 3,
-      "currentLoad": 1,
-      "currentOrders": [],
-      "weight": 5,
-      "length": 3,
-      "width": 2,
-      "height": 6
+      "weight": 25,
+      "length": 200,
+      "width": 200,
+      "height": 200
     },
-    "status": "idle"
+    "status": "waiting_for_job"
 }
 
 def loadId():

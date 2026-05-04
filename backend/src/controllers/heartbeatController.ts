@@ -16,6 +16,7 @@ export const updateDroneFromHeartbeat = (
     console.log(droneId);
 
     let drone = drones.find(d => d.droneId === droneId);
+    if(!drone) return null;
     if (!drone) {
         drone =
         {
