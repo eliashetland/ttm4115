@@ -2,21 +2,15 @@ import { drones, orders } from "../db/db.js";
 import type { IDronePosition } from "../models/dronePositionModel.js";
 import type { DroneStatus } from "../models/droneModel.js";
 import { isDroneMoving } from "../services/droneMovementService.js";
-
 function mapDroneState(state: string): DroneStatus {
     switch (state) {
         case "delivering":
-        case "on_the_way":
-        case "order_received":
         case "drop_of":
-        case "drop_off":
-            return "in-flight";
         case "returning":
-        case "on_the_way_back":
-            return "returning";
+            return "in-flight";
         case "charging":
             return "charging";
-        default:                    // "idle", "waiting_for_job", etc.
+        default:
             return "idle";
     }
 }
@@ -32,17 +26,14 @@ export const updateDroneFromHeartbeat = (
     const drone = drones.find(d => d.droneId === droneId);
     if (!drone) return null;
 
-    if ((state === "drop_of" || state === "drop_off") && drone.orderId) {
+    if (state === "drop_of" && drone.orderId) {
         const order = orders.find(o => o.id === drone.orderId);
         if (order) {
+            order.status = "Delivered";
             order.history.push({
                 createdAt: new Date(dronePosition.timestamp),
-                status: "Order delivered",
-                location: {
-                    latitude: dronePosition.latitude,
-                    longitude: dronePosition.longitude,
-                    description: order.target.description
-                },
+                status: "Delivered",
+                location: { latitude: dronePosition.latitude, longitude: dronePosition.longitude, description: order.target.description },
                 type: "status",
                 message: `Package delivered by drone ${drone.name}`
             });
@@ -55,19 +46,15 @@ export const updateDroneFromHeartbeat = (
         if (order) {
             order.history.push({
                 createdAt: new Date(dronePosition.timestamp),
-                status: "In-Flight",
-                location: {
-                    latitude: dronePosition.latitude,
-                    longitude: dronePosition.longitude,
-                    description: "In transit"
-                },
+                status: "In Transit",
+                location: { latitude: dronePosition.latitude, longitude: dronePosition.longitude, description: "In transit" },
                 type: "drone",
-                message: `Drone ${drone.name} is en route`
+                message: `Drone ${drone.name} is in-flight with the order`
             });
         }
     }
 
-    // Don't override position/battery/status while the simulation is managing this drone
+    // Don't override position/battery while simulation is managing this drone
     if (!isDroneMoving(droneId)) {
         drone.batteryLevel = batteryLevel;
         drone.position = dronePosition;
