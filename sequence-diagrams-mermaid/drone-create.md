@@ -9,7 +9,7 @@ sequenceDiagram
 
     API->>API: Subscribe to drones/${ID from database}/#
 
-    loop Every 5 minute until Ack
+    loop Until Ack Received
         Drone->>Drone: Generate nonce
 
         Drone->>Drone: Subscribe drones/nonce/${nonce}/id
