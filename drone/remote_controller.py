@@ -2,34 +2,64 @@ import tkinter as tk
 import json
 import paho.mqtt.client as mqtt
 import time
+import os
 
-BROKER = "localhost"
+BROKER = os.getenv("MQTT_HOST", "mqtt20.iik.ntnu.no")
 PORT = 1883
+
 
 class RemoteGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Drone Remote Controller 🚁")
 
-        # MQTT setup
         self.client = mqtt.Client()
         self.client.connect(BROKER, PORT)
         self.client.loop_start()
+
         self.client.on_message = self.on_message
-        self.client.subscribe("sense/pixel/state")
+
+        # CHANGED: mock instead of drones
+        self.client.subscribe("mock/+/sense/pixel/state")
+
         self.live_refresh = False
         self.refresh_rate_ms = 100
         self.id = tk.IntVar(value=1)
+
         self.build_ui()
+
         self.led_rects = [[None for _ in range(8)] for _ in range(8)]
         self._init_led_grid()
+
         self.get_led()
 
+    def get_drone_id(self):
+        try:
+            return int(self.id.get())
+        except:
+            return None
+
+    # CHANGED: mock topic base
+    def topic(self, suffix):
+        mid = self.get_drone_id()
+        if not mid:
+            return None
+        return f"mock/{mid}/{suffix}"
+
     def on_message(self, client, userdata, msg):
-        if msg.topic == "sense/pixel/state":
-            data = json.loads(msg.payload.decode())
-            self.draw_matrix(data["matrix"])
-    
+        if msg.topic.endswith("sense/pixel/state"):
+            try:
+                mid = self.get_drone_id()
+                topic_id = int(msg.topic.split("/")[1])
+
+                if mid != topic_id:
+                    return
+
+                data = json.loads(msg.payload.decode())
+                self.draw_matrix(data["matrix"])
+            except:
+                pass
+
     def _init_led_grid(self):
         size = 25
         padding = 3
@@ -50,16 +80,19 @@ class RemoteGUI:
                 self.led_rects[y][x] = rect
 
     def get_led(self):
-        self.client.publish(f"drones/{self.id.get()}/sense/pixel/get", "1")
+        t = self.topic("sense/pixel/get")
+        if t:
+            self.client.publish(t, "1")
 
-    # ---------- MQTT helpers ----------
     def send_joystick(self, direction):
-        self.client.publish(f"drones/{self.id.get()}/joystick/add", direction)
-        print("Sent joystick:", direction)
-    
+        t = self.topic("joystick/add")
+        if t:
+            self.client.publish(t, direction)
+
     def send_usb(self, action):
-        self.client.publish(f"drones/{self.id.get()}/usb/action", action)
-        print("Sent usb:", action)
+        t = self.topic("usb/action")
+        if t:
+            self.client.publish(t, action)
 
     def clear_led(self):
         self.client.publish("sense/clear", "1")
@@ -77,132 +110,77 @@ class RemoteGUI:
         except ValueError:
             print("Invalid pixel values")
 
-    # ---------- UI ----------
     def build_ui(self):
-        id_frame = tk.LabelFrame(self.root, text="Drone ID")
+        id_frame = tk.LabelFrame(self.root, text="Mock ID")
         id_frame.pack(padx=10, pady=10)
+
         tk.Spinbox(id_frame, from_=1, to=99, textvariable=self.id, width=5).pack()
 
         usb_frame = tk.LabelFrame(self.root, text="USB")
         usb_frame.pack(padx=10, pady=10)
 
-        tk.Button(
-            usb_frame, text="Add USB", width=10, command=lambda: self.send_usb("add")
-        ).grid(row=0, column=0)
-        tk.Button(
-            usb_frame, text="Remove USB", width=10, command=lambda: self.send_usb("remove")
-        ).grid(row=1, column=0)
+        tk.Button(usb_frame, text="Add USB",
+                  command=lambda: self.send_usb("add")).grid(row=0, column=0)
+
+        tk.Button(usb_frame, text="Remove USB",
+                  command=lambda: self.send_usb("remove")).grid(row=1, column=0)
 
         joystick_frame = tk.LabelFrame(self.root, text="Joystick")
         joystick_frame.pack(padx=10, pady=10)
 
-        tk.Button(
-            joystick_frame, text="↑", width=5, command=lambda: self.send_joystick("up")
-        ).grid(row=0, column=1)
+        tk.Button(joystick_frame, text="↑",
+                  command=lambda: self.send_joystick("up")).grid(row=0, column=1)
 
-        tk.Button(
-            joystick_frame,
-            text="←",
-            width=5,
-            command=lambda: self.send_joystick("left"),
-        ).grid(row=1, column=0)
+        tk.Button(joystick_frame, text="←",
+                  command=lambda: self.send_joystick("left")).grid(row=1, column=0)
 
-        tk.Button(
-            joystick_frame,
-            text="●",
-            width=5,
-            command=lambda: self.send_joystick("middle"),
-        ).grid(row=1, column=1)
+        tk.Button(joystick_frame, text="●",
+                  command=lambda: self.send_joystick("middle")).grid(row=1, column=1)
 
-        tk.Button(
-            joystick_frame,
-            text="→",
-            width=5,
-            command=lambda: self.send_joystick("right"),
-        ).grid(row=1, column=2)
+        tk.Button(joystick_frame, text="→",
+                  command=lambda: self.send_joystick("right")).grid(row=1, column=2)
 
-        tk.Button(
-            joystick_frame,
-            text="↓",
-            width=5,
-            command=lambda: self.send_joystick("down"),
-        ).grid(row=2, column=1)
-
-        # LED controls
-        led_frame = tk.LabelFrame(self.root, text="LED Control")
-        led_frame.pack(padx=10, pady=10)
+        tk.Button(joystick_frame, text="↓",
+                  command=lambda: self.send_joystick("down")).grid(row=2, column=1)
 
         self.canvas = tk.Canvas(self.root, width=240, height=240, bg="black")
         self.canvas.pack(pady=10)
 
-        """ tk.Label(led_frame, text="X").grid(row=0, column=0)
-        tk.Label(led_frame, text="Y").grid(row=0, column=1)
-        tk.Label(led_frame, text="R").grid(row=0, column=2)
-        tk.Label(led_frame, text="G").grid(row=0, column=3)
-        tk.Label(led_frame, text="B").grid(row=0, column=4)
-
-        self.x_entry = tk.Entry(led_frame, width=4)
-        self.y_entry = tk.Entry(led_frame, width=4)
-        self.r_entry = tk.Entry(led_frame, width=4)
-        self.g_entry = tk.Entry(led_frame, width=4)
-        self.b_entry = tk.Entry(led_frame, width=4)
-
-        self.x_entry.grid(row=1, column=0)
-        self.y_entry.grid(row=1, column=1)
-        self.r_entry.grid(row=1, column=2)
-        self.g_entry.grid(row=1, column=3)
-        self.b_entry.grid(row=1, column=4)
-
-        tk.Button(led_frame, text="Set Pixel", command=self.set_pixel).grid(
-            row=2, column=0, columnspan=5, pady=5
-        )
-        tk.Button(led_frame, text="Clear Display", command=self.clear_led).grid(
-            row=3, column=0, columnspan=5
-        ) """
-        tk.Button(led_frame, text="Get LED State", command=self.get_led).grid(
-            row=4, column=0, columnspan=5, pady=5
-        )
+        tk.Button(
+            self.root,
+            text="Get LED State",
+            command=self.get_led
+        ).pack()
 
         self.live_var = tk.BooleanVar()
 
         tk.Checkbutton(
-            led_frame,
+            self.root,
             text="Live Refresh",
             variable=self.live_var,
             command=self.toggle_live_refresh,
-        ).grid(row=5, column=0, columnspan=5)
+        ).pack()
 
     def draw_matrix(self, matrix):
         for y in range(8):
             for x in range(8):
                 r, g, b = matrix[y][x]
                 color = f'#{r:02x}{g:02x}{b:02x}'
-
-                self.canvas.itemconfig(
-                    self.led_rects[y][x],
-                    fill=color
-                )
+                self.canvas.itemconfig(self.led_rects[y][x], fill=color)
 
     def toggle_live_refresh(self):
         self.live_refresh = self.live_var.get()
-
         if self.live_refresh:
-            print("Live refresh ON")
             self.live_update_loop()
-        else:
-            print("Live refresh OFF")
 
     def live_update_loop(self):
         if not self.live_refresh:
             return
 
-        # Request LED state
         self.get_led()
-
-        # Schedule next refresh
         self.root.after(self.refresh_rate_ms, self.live_update_loop)
 
-# ---------- start app ----------
+
 root = tk.Tk()
 app = RemoteGUI(root)
 root.mainloop()

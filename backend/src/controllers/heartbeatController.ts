@@ -11,12 +11,9 @@ export const updateDroneFromHeartbeat = (
 ) => {
     if (!validateHeartbeatData(droneId, batteryLevel, dronePosition)) return null;
 
-    if( droneId === 4) return;
+    if (droneId === 4) return;
 
-    if (droneId === 5) {
-        console.log(droneId, batteryLevel, dronePosition, state);
-
-    }
+    console.log(droneId);
 
     let drone = drones.find(d => d.droneId === droneId);
     if (!drone) {

@@ -4,9 +4,9 @@ services:
     environment:
       RUNNING_IN_DOCKER: 1
     deploy:
-      replicas: 1
+      replicas: 5
     env_file:
-      - path: MQTT.env
+      - path: ./drone/.env
     volumes:
       - ./drone:/drone
      # - ./drone/drone_id:/home/pi/drone_id
@@ -16,7 +16,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - path: MQTT.env
+      - path: ./backend/.env
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 5s
@@ -29,6 +29,8 @@ services:
     build: ./frontend
     ports:
       - "5173:80"
+    env_file:
+      - path: ./frontend/.env
     depends_on:
       backend:
         condition: service_healthy
