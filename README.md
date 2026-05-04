@@ -10,7 +10,7 @@ After receiving orders, the backend assigns orders to available drones, that are
 
 The drone application is supposed to be attached to a drone, and control it based on communication with the backend. The controller checks battery-status on the drone, and sends heartbeat to the backend containing deliver status, battery and position. 
 
-![drone-mock](./img/drone-mock.png)
+![drone-mock](./img/multi-mock.png)
 
 The end user can check delivery-status in the /orders/{orderId} page. Here you can see the current drone position, history of where the package has been, and more details like dimensions and weight. 
 
