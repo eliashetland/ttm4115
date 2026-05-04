@@ -15,6 +15,7 @@ export interface IDrone {
     destination?: IOrderLocation;
     departureTime?: number;
     timeLeft?: number;
+    mqttPrefix?: string;   // set for real Pi drones, e.g. "09"
 }
 
 export interface IDroneInsert extends Omit<IDrone, "droneId" | "batteryLevel" | "status"> {

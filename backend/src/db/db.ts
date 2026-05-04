@@ -9,6 +9,7 @@ export const drones: IDrone[] = [
         name: "Drone 1",
         model: "Model A",
         manufacturer: "Manufacturer X",
+        mqttPrefix: "09",
         batteryLevel: 100,
         position: {
             latitude: WAREHOUSE_COORDS.latitude,
