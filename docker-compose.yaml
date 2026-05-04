@@ -1,8 +1,15 @@
 services:
   drone:
     build: ./drone
+    environment:
+      RUNNING_IN_DOCKER: 1
+    deploy:
+      replicas: 1
+    env_file:
+      - path: MQTT.env
     volumes:
-      - ./drone:/workspace
+      - ./drone:/workspace/drone
+     # - ./drone/drone_id:/home/pi/drone_id
 
   backend:
     build: ./backend

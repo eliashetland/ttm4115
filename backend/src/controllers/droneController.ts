@@ -1,25 +1,34 @@
-import { drones } from "../db/db.js"
+import { drones, orders } from "../db/db.js";
 import type { IDrone, IDroneInsert } from "../models/droneModel.js";
-
+import { timeBetweenPoints } from "../services/deliveryTimeService.js";
 
 export const getDrone = () => {
-    return drones.sort((a, b) => a.batteryLevel - b.batteryLevel);
+    return drones.map(drone => {
+        let timeLeft: number | undefined;
+        if (drone.status === "in-flight" && drone.orderId) {
+            const order = orders.find(o => o.id === drone.orderId);
+            if (order) {
+                timeLeft = timeBetweenPoints(
+                    drone.position.latitude, drone.position.longitude,
+                    order.target.latitude, order.target.longitude
+                );
+            }
+        }
+        return { ...drone, timeLeft };
+    }).sort((a, b) => a.batteryLevel - b.batteryLevel);
 };
 
 export const getDroneById = (droneId: number) => {
-    const drone = drones.find(drone => drone.droneId === droneId);
-    return drone;
+    return drones.find(drone => drone.droneId === droneId);
 };
 
-// droneData can contain droneId if the type IDrone is used. This overwrites the newly given droneId
-// Fix implemented at the moment is setting the droneId after the droneData sets the Id
 export const createDrone = (droneData: IDroneInsert) => {
     const newDrone: IDrone = {
         droneId: drones.length + 1,
         batteryLevel: droneData.batteryLevel ?? 100,
         status: droneData.status ?? "idle",
         ...droneData
-    }
+    };
     newDrone.droneId = drones.length + 1;
     drones.push(newDrone);
     return newDrone;
@@ -27,10 +36,7 @@ export const createDrone = (droneData: IDroneInsert) => {
 
 export const updateDroneBatteryLevel = (droneId: number, batteryLevel: number) => {
     const drone = drones.find(drone => drone.droneId === droneId);
-    if (!drone) {
-        return null;
-    }
-
+    if (!drone) return null;
     drone.batteryLevel = batteryLevel;
     return drone;
 };

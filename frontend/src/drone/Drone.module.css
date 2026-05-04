@@ -55,3 +55,12 @@
 .orange {
   color: orange !important;
 }
+
+.autoRefresh {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+.autoRefresh input {
+  width: 20px;
+}
