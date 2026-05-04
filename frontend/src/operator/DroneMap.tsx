@@ -45,7 +45,7 @@ export const DroneMap = (props: IDroneRouteProps) => {
       mapboxAccessToken={import.meta.env.VITE_MAPBOX_API_KEY}
       {...viewState}
       onMove={(evt) => setViewState(evt.viewState)}
-      style={{ width: "100%", height: 400 }}
+      style={{ width: "100%", height: 800 }}
       mapStyle="mapbox://styles/mapbox/streets-v9"
     >
       <Source id="drone" type="geojson" data={dronePoints as any}>

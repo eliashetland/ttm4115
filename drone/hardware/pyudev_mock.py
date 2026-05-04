@@ -41,7 +41,7 @@ class Monitor:
             id = loadId()
 
         self.topic_handlers = {
-            f"drones/{id}/usb/action": self._mqtt_add_usb_action,
+            f"mock/{id}/usb/action": self._mqtt_add_usb_action,
         }
 
         for topic in self.topic_handlers:
