@@ -1,3 +1,4 @@
+import { MOCK_ORDERS } from "../constants.js";
 import { drones, orders } from "../db/db.js";
 import type { IOrder, IOrderHistory, IOrderInsert, IOrderLocation } from "../models/orderModel.js";
 import { deliveryQueueService } from "../services/deliveryQueueService.js";
@@ -23,6 +24,12 @@ export const createOrder = (order: IOrderInsert) => {
     orders.push(newOrder);
     deliveryQueueService.addToQueue(newOrder);
     return newOrder;
+};
+
+export const createMockOrders = () => {
+    for (const order of MOCK_ORDERS) {
+        createOrder(order);
+    }
 };
 
 export const getAllOrders = () => orders;

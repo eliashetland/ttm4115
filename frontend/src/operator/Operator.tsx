@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export const Operator = () => {
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const { data: drones } = useQuery({
     queryKey: ["drones"],
     queryFn: () => ApiClient.get<IDrone[]>("/drone"),

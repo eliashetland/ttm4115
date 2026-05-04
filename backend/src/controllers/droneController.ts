@@ -5,7 +5,7 @@ import { timeBetweenPoints } from "../services/deliveryTimeService.js";
 export const getDrone = () => {
     return drones.map(drone => {
         let timeLeft: number | undefined;
-        if (drone.status === "in-flight" && drone.orderId) {
+        if ((drone.status === "on_the_way") && drone.orderId) {
             const order = orders.find(o => o.id === drone.orderId);
             if (order) {
                 timeLeft = timeBetweenPoints(
@@ -24,10 +24,11 @@ export const getDroneById = (droneId: number) => {
 
 export const createDrone = (droneData: IDroneInsert) => {
     const newDrone: IDrone = {
+        ...droneData,
         droneId: drones.length + 1,
+        name: `Drone ${drones.length + 1}`,
         batteryLevel: droneData.batteryLevel ?? 100,
-        status: droneData.status ?? "idle",
-        ...droneData
+        status: droneData.status ?? "waiting_for_job",
     };
     newDrone.droneId = drones.length + 1;
     drones.push(newDrone);

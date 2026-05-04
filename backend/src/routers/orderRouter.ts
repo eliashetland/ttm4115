@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createOrder, getAllOrders, getOrderById, updateOrderStatus } from "../controllers/orderController.js";
+import { createMockOrders, createOrder, getAllOrders, getOrderById, updateOrderStatus } from "../controllers/orderController.js";
 import { calculateDeliveryTime } from "../services/deliveryTimeService.js";
 
 const orderRouter = Router();
@@ -18,6 +18,16 @@ orderRouter.post("/", (req, res) => {
         return res.status(400).json({ message: error.message });
     }
 
+});
+
+orderRouter.post("/mock", (_req, res) => {
+    try {
+        createMockOrders();
+        return res.status(201).json({ message: "Mock orders created successfully" });
+    }
+    catch (error) {
+        return res.status(500).json({ message: "Failed to create mock orders" });
+    }
 });
 
 orderRouter.post("/estimate-time", (req, res) => {

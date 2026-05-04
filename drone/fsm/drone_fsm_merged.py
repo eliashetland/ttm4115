@@ -1,3 +1,5 @@
+import threading
+
 from stmpy import Driver, Machine
 from threading import Thread
 import paho.mqtt.client as mqtt
@@ -24,27 +26,23 @@ client.loop_start()
 
 drone = {
     "droneId": -1,
-    "name": "Example Drone",
-    "model": "Example Model",
-    "manufacturer": "Example Manufacturer",
-    "batterylevel": 40,
+    "name": "Pelikan",
+    "model": "Phantom 4 Pro",
+    "manufacturer": "DJI",
+    "battery_level": 90,
     "position": {
-      "latitude": 24,
-      "longitude": 14,
-      "altitude": 54,
-      "timestamp": int(time.time())
+      "latitude": 63.415777440500655,
+      "longitude": 10.406715511683895,
+      "altitude": 100,
+      "timestamp": datetime.now().timestamp()
     },
     "maxCapacity": {
-      "maxWeight": 2,
-      "maxVolume": 3,
-      "currentLoad": 1,
-      "currentOrders": [],
-      "weight": 5,
-      "length": 3,
-      "width": 2,
-      "height": 6
+      "weight": 25,
+      "length": 200,
+      "width": 200,
+      "height": 200
     },
-    "status": "idle"
+    "status": "waiting_for_job"
 }
 
 def loadId():
@@ -78,28 +76,28 @@ def getId(setId, drone=drone, timeout=15):
     # Event used to block until reply arrives
     response_event = threading.Event()
 
-    client.subscribe(f"drones/nonce/{nonce}/id")
+    client.subscribe(f"09/drones/nonce/{nonce}/id")
 
     def on_nonce_response(client, userdata, message):
         payload = json.loads(message.payload.decode())
         id = payload["id"]
 
-        client.subscribe(f"drones/{id}/#")
-        client.unsubscribe(f"drones/nonce/{nonce}/id")
-        client.publish(f"drones/{id}/drone-ack", json.dumps({"ack": 1}))
+        client.subscribe(f"09/drones/{id}/#")
+        client.unsubscribe(f"09/drones/nonce/{nonce}/id")
+        client.publish(f"09/drones/{id}/drone-ack", json.dumps({"ack": 1}))
 
         setId(id)
 
         response_event.set()
 
     client.message_callback_add(
-        f"drones/nonce/{nonce}/id",
+        f"09/drones/nonce/{nonce}/id",
         on_nonce_response
     )
 
     # Send request
     client.publish(
-        "drones/create",
+        "09/drones/create",
         json.dumps({"drone": drone, "nonce": nonce})
     )
 
@@ -769,7 +767,7 @@ class Heartbeat:
             'battery_level': battery.level,
             'gps': drone_status.position
         }
-        self.stm.client.publish("09/heartbeat", json.dumps(heartbeat_data))
+        self.stm.client.publish("hb/09/heartbeat", json.dumps(heartbeat_data))
 
 def create_heartbeat_machine():
     t0 = {"source": "initial", "target": "idle"}

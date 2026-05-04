@@ -7,7 +7,11 @@ import { selectBestDrone, assignOrderToDrone } from "./droneSelectionService.js"
 const queue: IOrder[] = [];
 
 const assignAndDispatch = (drone: any, order: IOrder): void => {
+    drone.status = "order_received";
+    drone.orderId = order.id;
+
     assignOrderToDrone(drone, order);
+    
     order.status = "In Transit";
     order.history.push({
         createdAt: new Date(),

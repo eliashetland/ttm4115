@@ -665,7 +665,7 @@ class Heartbeat:
             'battery_level': battery.level,
             'gps': drone_status.position
         }
-        self.stm.client.publish("09/heartbeat", json.dumps(heartbeat_data))
+        self.stm.client.publish("hb/09/heartbeat", json.dumps(heartbeat_data))
 
 def create_heartbeat_machine():
     t0 = {"source": "initial", "target": "idle"}

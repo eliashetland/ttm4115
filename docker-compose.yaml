@@ -7,6 +7,9 @@ services:
       replicas: 5
     env_file:
       - path: ./drone/.env
+    depends_on:
+      backend:
+        condition: service_healthy
     volumes:
       - ./drone:/drone
      # - ./drone/drone_id:/home/pi/drone_id
