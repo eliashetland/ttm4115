@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "-m", "drone.fsm.drone_fsm"]
+CMD ["python", "-m", "fsm.drone_fsm"]
