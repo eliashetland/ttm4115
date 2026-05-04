@@ -42,6 +42,11 @@ npm i
 npm run dev
 ```
 
+### run drone remote in dev
+
+choose the broker in in the remote_controller.py and run it
+it will then connect to the broker, and be able to control the drones that run in docker
+
 
 ## GET STARTED
 
