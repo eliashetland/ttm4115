@@ -1,7 +1,7 @@
 import { getMqttClient } from "../../controllers/mqttController.js";
 import { updateDroneFromHeartbeat } from "../../controllers/heartbeatController.js";
 
-const HEARTBEAT_TOPIC = "+/heartbeat";
+const HEARTBEAT_TOPIC = "hb/09/heartbeat";
 const client = getMqttClient();
 client.on("connect", () => {
   client.subscribe(HEARTBEAT_TOPIC);

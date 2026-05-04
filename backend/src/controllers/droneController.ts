@@ -24,10 +24,11 @@ export const getDroneById = (droneId: number) => {
 
 export const createDrone = (droneData: IDroneInsert) => {
     const newDrone: IDrone = {
+        ...droneData,
         droneId: drones.length + 1,
+        name: `Drone ${drones.length + 1}`,
         batteryLevel: droneData.batteryLevel ?? 100,
         status: droneData.status ?? "waiting_for_job",
-        ...droneData
     };
     newDrone.droneId = drones.length + 1;
     drones.push(newDrone);

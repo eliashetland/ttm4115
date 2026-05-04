@@ -20,11 +20,6 @@ export const MOCK_ORDERS = [{
     status: "Created",
     deliveryTime: calculateDeliveryTime(63.4303, 10.3948),
     target: { latitude: 63.4303, longitude: 10.3948, description: "Munkegata 26, Trondheim" },
-    history: [{
-        createdAt: new Date(), status: "Created", type: "status",
-        location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
-        message: "Order created and queued for delivery"
-    }]
 },
 {
     sender: "Rema 1000",
@@ -37,11 +32,6 @@ export const MOCK_ORDERS = [{
     status: "Created",
     deliveryTime: calculateDeliveryTime(63.4296, 10.3928),
     target: { latitude: 63.4296, longitude: 10.3928, description: "Prinsens gate 38, Trondheim" },
-    history: [{
-        createdAt: new Date(), status: "Created", type: "status",
-        location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
-        message: "Order created and queued for delivery"
-    }]
 },
 {
     sender: "Apotek 1",
@@ -54,11 +44,6 @@ export const MOCK_ORDERS = [{
     status: "Created",
     deliveryTime: calculateDeliveryTime(63.4512, 10.4530),
     target: { latitude: 63.4512, longitude: 10.4530, description: "Ladeveien 30, Trondheim" },
-    history: [{
-        createdAt: new Date(), status: "Created", type: "status",
-        location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
-        message: "Order created and queued for delivery"
-    }]
 },
 {
     sender: "POWER",
@@ -71,11 +56,6 @@ export const MOCK_ORDERS = [{
     status: "Created",
     deliveryTime: calculateDeliveryTime(63.4224, 10.3954),
     target: { latitude: 63.4224, longitude: 10.3954, description: "Elgeseter gate 14, Trondheim" },
-    history: [{
-        createdAt: new Date(), status: "Created", type: "status",
-        location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
-        message: "Order created and queued for delivery"
-    }]
 },
 {
     sender: "Vinmonopolet",
@@ -88,11 +68,6 @@ export const MOCK_ORDERS = [{
     status: "Created",
     deliveryTime: calculateDeliveryTime(63.4430, 10.4270),
     target: { latitude: 63.4430, longitude: 10.4270, description: "Innherredsveien 120, Trondheim" },
-    history: [{
-        createdAt: new Date(), status: "Created", type: "status",
-        location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
-        message: "Order created and queued for delivery"
-    }]
 },
 {
     sender: "Jernia",
@@ -105,10 +80,5 @@ export const MOCK_ORDERS = [{
     status: "Created",
     deliveryTime: calculateDeliveryTime(63.4086, 10.3637),
     target: { latitude: 63.4086, longitude: 10.3637, description: "Brøsetvegen 186, Trondheim" },
-    history: [{
-        createdAt: new Date(), status: "Created", type: "status",
-        location: { latitude: WAREHOUSE_COORDS.latitude, longitude: WAREHOUSE_COORDS.longitude, description: "Warehouse" },
-        message: "Order created and queued for delivery"
-    }]
 }
 ];

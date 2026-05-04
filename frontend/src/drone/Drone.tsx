@@ -9,7 +9,7 @@ import { useState } from "react";
 
 export const Drone = () => {
   const { droneId } = useParams();
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   const { data: drone } = useQuery({
     queryKey: ["drone", droneId],

@@ -58,6 +58,8 @@ there are .env.example files. To be able to run the system you have to create a 
 ### run production
 
 from root
+> docker compose build --no-cache 
+
 > docker compose up -d
 
 this will create 5 mock drones, that can be controlled by the remote_controller.py. This is only used in the mock drones so it will not auto launch from docker.

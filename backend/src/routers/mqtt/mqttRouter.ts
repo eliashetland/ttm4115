@@ -25,15 +25,15 @@ export default function mqttRouter(
   const strId = topic.split("/").at(1);
   const id = parseInt(strId ? strId : "");
 
-  // if(process.env.MQTT_DEBUG && isNaN(id)) console.log(`drones/${id}/droneAck`)
+  // if(process.env.MQTT_DEBUG && isNaN(id)) console.log(`09/drones/${id}/droneAck`)
 
   let strMessage = message.toString();
 
   switch (topic) {
-    case "drones/create":
+    case "09/drones/create":
       droneCreateMQTT(topic, strMessage);
       break;
-    case `drones/${id}/drone-ack`:
+    case `09/drones/${id}/drone-ack`:
       droneAckMQTT(id, strMessage);
       break;
     default:

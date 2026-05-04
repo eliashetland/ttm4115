@@ -76,28 +76,28 @@ def getId(setId, drone=drone, timeout=15):
     # Event used to block until reply arrives
     response_event = threading.Event()
 
-    client.subscribe(f"drones/nonce/{nonce}/id")
+    client.subscribe(f"09/drones/nonce/{nonce}/id")
 
     def on_nonce_response(client, userdata, message):
         payload = json.loads(message.payload.decode())
         id = payload["id"]
 
-        client.subscribe(f"drones/{id}/#")
-        client.unsubscribe(f"drones/nonce/{nonce}/id")
-        client.publish(f"drones/{id}/drone-ack", json.dumps({"ack": 1}))
+        client.subscribe(f"09/drones/{id}/#")
+        client.unsubscribe(f"09/drones/nonce/{nonce}/id")
+        client.publish(f"09/drones/{id}/drone-ack", json.dumps({"ack": 1}))
 
         setId(id)
 
         response_event.set()
 
     client.message_callback_add(
-        f"drones/nonce/{nonce}/id",
+        f"09/drones/nonce/{nonce}/id",
         on_nonce_response
     )
 
     # Send request
     client.publish(
-        "drones/create",
+        "09/drones/create",
         json.dumps({"drone": drone, "nonce": nonce})
     )
 
@@ -767,7 +767,7 @@ class Heartbeat:
             'battery_level': battery.level,
             'gps': drone_status.position
         }
-        self.stm.client.publish("09/heartbeat", json.dumps(heartbeat_data))
+        self.stm.client.publish("hb/09/heartbeat", json.dumps(heartbeat_data))
 
 def create_heartbeat_machine():
     t0 = {"source": "initial", "target": "idle"}
