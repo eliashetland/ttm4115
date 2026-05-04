@@ -11,6 +11,7 @@ export const Drone = () => {
   const { data: drone } = useQuery({
     queryKey: ["drone", droneId],
     queryFn: () => ApiClient.get<IDrone>(`/drone/${droneId}`),
+    refetchInterval: 2000,
   });
 
   return (

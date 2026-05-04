@@ -9,7 +9,7 @@ orderRouter.post("/", (req, res) => {
 
     try {
         const createdOrder = createOrder(newOrderData);
-        return res.status(201).json({ message: "Order created successfully", order: createdOrder });
+        return res.status(201).json(createdOrder);
 
     } catch (error) {
         if (!(error instanceof Error)) {
